@@ -19,10 +19,8 @@ sub parse_doc_jfile {
         $api = "$baseapi/$1";
         if ($method) {
           print "$method $api\n";
-        } else {
-          print "$api\n";
         }
-      } elsif ($line =~ m/\@(GET|PUT|POST|DELETE)\>/) {
+      } elsif ($line =~ m/\@(GET|PUT|POST|DELETE)/) {
         $method = $1;
       }
     }
