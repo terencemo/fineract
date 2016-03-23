@@ -31,7 +31,7 @@ sub add_api {
   $api_reg->{$mod} ||= {};
   $api_reg->{$mod}->{$api} ||= {};
   if ($api_reg->{$mod}->{$api}->{$label}) {
-    print color("red") . "\tAPI REPEAT: $mod,$api,$label" . color("reset") . "\n";
+    print color("red") . "\tREPEAT: $mod,$api,$label" . color("reset") . "\n";
   } else {
     $api_hash->{$mod} ||= { methods => {} };
     $api_hash->{$mod}->{methods}->{$label} ||= {
@@ -53,10 +53,11 @@ sub process_api {
   print ", PARAMS=" . join(",", @params) if @params;
   my $label = $verb;
   $label .= "One" if ($method =~ m/get/i and grep { m/id/i } @params);
+  $label .= "Template" if ($api =~ m/template/);
   $label .= $mod;  
   print " => $label\n";
   my $name = $label;
-  $name =~ s/([A-Z])/ $1/;
+  $name =~ s/(.)([A-Z])/\1 \2/g;
   my $params = {
     map {
       $_ => {
@@ -85,7 +86,12 @@ sub parse_doc_jfile {
         if ($method) {
           process_api($mod, $method, $api);
         }
+        $api = undef;
       } elsif ($line =~ m/\@(GET|PUT|POST|DELETE)/) {
+        if ($method) {
+          $api ||= $baseapi;
+          process_api($mod, $method, $api);
+        }
         $method = $1;
       }
     }
