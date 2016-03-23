@@ -5,7 +5,6 @@ my $basedir = shift @ARGV || "fineract-provider";
 sub parse_doc_jfile {
   my $path = shift;
 
-#  print "Parsing Java file: $path\n";
   my $baseapi = undef;
   my $api = undef;
   my $method = undef;
@@ -13,12 +12,13 @@ sub parse_doc_jfile {
   while (my $line = <$fh>) {
     if ($line =~ m/^\@Path\("(.*)"\)/) {
       $baseapi = $1;
+      print "$path\n";
     }
     if ($baseapi) {
       if ($line =~ m/\@Path\("(.*)"\)/) {
         $api = "$baseapi/$1";
         if ($method) {
-          print "$method $api\n";
+          print "\t$method\t$api\n";
         }
       } elsif ($line =~ m/\@(GET|PUT|POST|DELETE)/) {
         $method = $1;
@@ -28,7 +28,7 @@ sub parse_doc_jfile {
   if ($baseapi) {
     $api = $baseapi unless $api;
     if ($method) {
-      print "$method $api\n";
+      print "\t$method\t$api\n";
     }
   }
   close($fh);
