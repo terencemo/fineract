@@ -133,6 +133,7 @@ my $data = {
   headers =>  {
     Accept =>  "application/json",
     Authorization =>  "Basic bWlmb3M6cGFzc3dvcmQ="
+    "Fineract-Platform-TenantId" => "default"
   },
 };
 
