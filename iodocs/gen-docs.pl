@@ -1,4 +1,8 @@
 #!/usr/bin/env perl
+# Author: Terence Monteiro
+# Purpose: Generate mashery iodocs documentation for Mifos
+# Usage: perl /path/to/gen-iodocs.pl [/path/to/existing/mifosxapi.json] [/path/to/new/mifosxapi.json]
+# Copyright: SanJose Solutions
 
 use strict;
 use warnings;
@@ -57,7 +61,7 @@ sub process_api {
   $label .= $mod;  
   print " => $label\n";
   my $name = $label;
-  $name =~ s/(.)([A-Z])/\1 \2/g;
+  $name =~ s/(.)([A-Z])/$1 $2/g;
   my $params = {
     map {
       $_ => {
@@ -132,7 +136,7 @@ my $data = {
   publicPath =>  "/fineract-provider/api/v1",
   headers =>  {
     Accept =>  "application/json",
-    Authorization =>  "Basic bWlmb3M6cGFzc3dvcmQ="
+    Authorization =>  "Basic bWlmb3M6cGFzc3dvcmQ=",
     "Fineract-Platform-TenantId" => "default"
   },
 };
