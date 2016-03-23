@@ -1,0 +1,3 @@
+[submodule "iodocs"]
+	path = iodocs/docs
+	url = http://github.com/mashery/iodocs.git
