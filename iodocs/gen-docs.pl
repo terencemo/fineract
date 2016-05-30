@@ -108,6 +108,11 @@ sub parse_doc_jfile {
   close($fh);
 }
 
+my $count = 0;
+my $jcount = 0;
+my $dcount = 0;
+my $fcount;
+
 sub cycle_dir {
   my $currdir = shift;
 
@@ -117,16 +122,20 @@ sub cycle_dir {
     my $currfile = "$currdir/$file";
     if (-d $currfile) {
       cycle_dir($currfile);
+      ++$dcount;
     } elsif (-f $currfile and $currfile =~ m/\.java$/) {
+      ++$jcount;
       parse_doc_jfile($currfile);
     }
+    ++$count;
   }
   closedir($dh);
+
+  $fcount = $count - $dcount - $jcount;
 }
 
-print color("green");
 cycle_dir($basedir);
-print color("reset");
+gprint "Scanned $dcount folders, $jcount Java files, $fcount other files\n";
 
 my $data = {
   name => "Mifos X API Documents",
