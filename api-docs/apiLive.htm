@@ -10,7 +10,7 @@
 	QueryParameters = (function() {
 		var result = {};
 		if (window.location.search) {
-			// split up the query string and store in an associative array
+			// split up the query string and store in an associaative array
 			var params = window.location.search.slice(1).split("&");
 			for ( var i = 0; i < params.length; i++) {
 				var tmp = params[i].split("=");
@@ -90,7 +90,7 @@
 <body>
 	<div id="page-wrapper">
 		<div id="flybar">
-			<div id="nav-logo">16.01.2.RELEASE</div>
+			<div id="nav-logo">0.1.0-incubating</div>
 			<div class="flybar-nav">
 				<h2 class="flybar-button">Overview</h2>
 				<div class="flybar-menu-overview">
@@ -508,6 +508,14 @@
 								<td><a href="#savingsaccounts_retrieve">Retrieve a savings application/account</a></td>
 								<td><a href="#savingsaccounts_update">Modify a savings application</a></td>
 								<td><a href="#savingsaccounts_delete">Delete a savings application</a></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>savingsaccounts/{accountId}?command=updateWithHoldTax</td>
+								<td></td>
+								<td></td>
+								<td><a href="#savingsaccounts_withholdtaxupdate">Modify savings application withhold tax</a></td>
+								<td></td>
 							</tr>
 							<tr>
 								<td></td>
@@ -930,6 +938,149 @@
 				</div>
 			</div>
 
+			<div class="flybar-nav">
+				<h2 class="flybar-button">Shares</h2>
+				<div id="toc-menu-client" class="flybar-menu">
+					<div class="tocMatrix">
+						<table class=matrixHeading>
+							<tr class="matrixHeadingBG">
+								<td colspan=2 valign="top"><div class="matrixHeadingVerbs">
+										<table>
+											<tr>
+												<td>RESOURCES</td>
+											</tr>
+										</table>
+									</div></td>
+								<td><table>
+										<tr>
+											<td><div class="matrixHeadingVerbs">POST</div></td>
+										</tr>
+										<tr>
+											<td><div class=matrixHeadingCommands>create/complex
+													update</div></td>
+										</tr>
+									</table></td>
+								<td><table>
+										<tr>
+											<td><div class="matrixHeadingVerbs">GET</div></td>
+										</tr>
+										<tr>
+											<td><div class=matrixHeadingCommands>read</div></td>
+										</tr>
+									</table></td>
+								<td><table>
+										<tr>
+											<td><div class="matrixHeadingVerbs">PUT</div></td>
+										</tr>
+										<tr>
+											<td><div class=matrixHeadingCommands>update</div></td>
+										</tr>
+									</table></td>
+								<td><table>
+										<tr>
+											<td><div class="matrixHeadingVerbs">DELETE</div></td>
+										</tr>
+										<tr>
+											<td><div class=matrixHeadingCommands>delete</div></td>
+										</tr>
+									</table></td>
+							</tr>
+							<tr>
+								<td><a href="#shareaccounts">Share Accounts</a></td>
+								<td>shareaccounts</td>
+								<td><a href="#shareaccount_create">Submit new share application</a></td>
+								<td><a href="#shareaccount_list">List share application/accounts</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}</td>
+								<td></td>
+								<td><a href="#shareaccount_retrieve">Retrieve a share application/account</a></td>
+								<td><a href="#shareaccount_update">Modify a share application</a></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=approve</td>
+								<td><a href="#shareaccount_approve">Approve a share application</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=undoApproval</td>
+								<td><a href="#shareaccount_undoapproval">Undo share application approval</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=reject</td>
+								<td><a href="#shareaccount_reject">Reject a share application</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=activate</td>
+								<td><a href="#shareaccount_activate">Activate a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=close</td>
+								<td><a href="#shareaccount_close">Close a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=applyadditionalshares</td>
+								<td><a href="#shareaccount_applyadditionalshares">Apply additional shares on a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=approveadditionalshares</td>
+								<td><a href="#shareaccount_approveadditionalshares">Approve additional shares request on a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=rejectadditionalshares</td>
+								<td><a href="#shareaccount_rejectadditionalshares">Reject additional shares request on a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							
+							<tr>
+								<td></td>
+								<td>accounts/share/{accountId}?command=redeemshares</td>
+								<td><a href="#shareaccount_redeem">Redeem shares on a share account</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							
+						</table>
+					</div>
+				</div>
+			</div>
+			
 			<div class="flybar-nav">
 				<h2 class="flybar-button">Loan</h2>
 				<div id="toc-menu-loan" class="flybar-menu">
@@ -1817,6 +1968,7 @@
 								<td></td>
 								<td></td>
 							</tr>
+														
 							<tr>
 								<td></td>
 								<td>savingsproducts/{productId}</td>
@@ -1857,6 +2009,22 @@
 								<td><a href="#rdproducts_update">Update a Recurring Deposit product</a></td>
 								<td><a href="#rdproducts_delete">Delete a Recurring Deposit product</a></td>
 							</tr>
+							<tr>
+								<td><a href="#shareproducts">Share Product</a></td>
+								<td>shareproducts</td>
+								<td><a href="#shareproducts_create">Create a Share product</a></td>
+								<td><a href="#shareproducts_list">List Share products</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>shareproducts/{productId}</td>
+								<td></td>
+								<td><a href="#shareproducts_retrieve">Retrieve a Share product</a></td>
+								<td><a href="#shareproducts_update">Update a Share product</a></td>
+							</tr>
+							
 							<tr>
 								<td><a href="#configs">Currency</a></td>
 								<td>currencies</td>
@@ -2165,6 +2333,40 @@
 								<td></td>
 								<td><a href="#retrieve_floatingrate">Retrieve Floating Rate</a></td>
 								<td><a href="#update_floatingrate">Update Floating Rate</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td><a href="#taxcomponent">Tax Component</a></td>
+								<td>taxes/component</td>
+								<td><a href="#create_taxcomponent">Create Tax Component</a></td>
+								<td><a href="#taxcomponents_list">List Tax Components</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>taxes/component/{taxComponentId}</td>
+								<td></td>
+								<td><a href="#retrieve_taxcomponent">Retrieve Tax component</a></td>
+								<td><a href="#update_taxcomponent">Update Tax Component</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td><a href="#taxgroup">Tax Group</a></td>
+								<td>taxes/group</td>
+								<td><a href="#create_taxgroup">Create Tax Group</a></td>
+								<td><a href="#taxgroup_list">List Tax Groups</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>taxes/group/{taxGroupId}</td>
+								<td></td>
+								<td><a href="#retrieve_taxgroup">Retrieve Tax Group</a></td>
+								<td><a href="#update_taxgroup">Update Tax Group</a></td>
 								<td></td>
 								<td></td>
 							</tr>
@@ -3159,10 +3361,42 @@
 								<td></td>
 							</tr>
 							<tr>
-								<td><a href="#selfloan">Loans</a></td>
+								<td><a href="#selfloantemplate">Loans</a></td>
+								<td>self/loans/template?templateType=individual</td>
+								<td></td>
+								<td><a href="#selfloantemplate">Loan Application Template</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>self/loans?command=calculateLoanSchedule</td>
+								<td><a href="#selfloancalc">Calculate Loan Repayment Schedule</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>self/loans</td>
+								<td><a href="#selfloanapply">Submit new Loan Application</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
 								<td>self/loans/{loanId}</td>
 								<td></td>
 								<td><a href="#selfloan">Retrieve a Loan</a></td>
+								<td><a href="#selfloanupdate">Update a Loan Application</a></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>self/loans/{loanId}?command=withdrawnByApplicant</td>
+								<td><a href="#selfloanwithdraw">Withdraw Loan Application</a></td>
+								<td></td>
 								<td></td>
 								<td></td>
 							</tr>
@@ -3234,6 +3468,38 @@
 								<td></td>
 								<td>self/accounttransfers</td>
 								<td><a href="#selftransfer">Account Transfer</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td><a href="#selfbentemplate">Beneficiary for Third Party Transfer</a></td>
+								<td>/self/beneficiaries/tpt/template</td>
+								<td></td>
+								<td><a href="#selfbentemplate">Beneficiary TPT Template</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>/self/beneficiaries/tpt</td>
+								<td><a href="#selfaddtpt">Add TPT Beneficiary</a></td>
+								<td><a href="#selfgettpt">Get TPT Beneficiary List</a></td>
+								<td><a href="#selfputtpt">Update TPT Beneficiary</a></td>
+								<td><a href="#selfdeletetpt">Delete TPT Beneficiary</a></td>
+							</tr>
+							<tr>
+								<td><a href="#selftpttransfertemplate">Third Party Account Transfers</a></td>
+								<td>self/accounttransfers/template?type="tpt"</td>
+								<td></td>
+								<td><a href="#selftpttransfertemplate">Third Party Account Transfer Template</a></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>self/accounttransfers?type="tpt"</td>
+								<td><a href="#selftpttransfer">Third Party Account Transfer</a></td>
 								<td></td>
 								<td></td>
 								<td></td>
@@ -19425,6 +19691,13 @@ Content-Type: application/json
 				<tr class=alt><td>minRequiredBalance</td></tr>
 	            <tr><td class=fielddesc><b>Optional</b>: If provided, sets an indicator of the minimum required balance of the  savings account e.g. <b>5,000</b> else set the limit as zero. Note that <span>enforceMinRequiredBalance</span> determines if the minimum required balance is enforced</td></tr>
 
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, sets an indicator for applying withhold tax on interest posting for savings account </td></tr>
+
+				<tr class=alt><td>taxGroupId</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If withhold tax set as true, with hold tax will be applied as per the tax group provided </td></tr>
+
+				
 	        </table>
 	    </div>
 	</div>
@@ -19975,6 +20248,499 @@ Content-Type: application/json
         </div>
     </div>
 
+	<a id="shareproducts_create" name="shareproducts_create" class="old-syle-anchor">&nbsp;</a>
+    <div class="method-section">
+        <div class="method-description">
+            <h4>Create a Share Product</h4>
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Mandatory Fields</div></td></tr>
+                <tr class=alt>
+                	<td>name, shortName, description, currencyCode, digitsAfterDecimal,inMultiplesOf, locale,
+                		totalShares, unitPrice, nominalShares,allowDividendCalculationForInactiveClients,accountingRule</td>
+                </tr>
+            </table>
+            <br/>
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Mandatory Fields for Cash based accounting (accountingRule = 2)</div></td></tr>
+                <tr class=alt>
+                	<td>shareReferenceId, shareSuspenseId, shareEquityId, incomeFromFeeAccountId</td>
+                </tr>
+            </table>
+            <br/>
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Optional Fields</div></td></tr>
+                <tr class=alt><td>sharesIssued, minimumShares, maximumShares, minimumActivePeriodForDividends, minimumactiveperiodFrequencyType, 
+				lockinPeriodFrequency, lockinPeriodFrequencyType, marketPricePeriods, chargesSelected</tr>
+            </table>
+        </div>
+        <div class="method-example">
+		
+            <code class="method-declaration">POST https://Domain Name/api/v1/products/share</code>
+			<code class="method-request">POST shareproducts
+Content-Type: application/json
+Request Body:
+{
+"name": "Share Product",
+"shortName": "SP",
+"description": "Description",
+"currencyCode": "USD",
+"digitsAfterDecimal": 2,
+"inMultiplesOf": "1",
+"locale": "en",
+"totalShares": "1000",
+"sharesIssued": "1000",
+"unitPrice": "1",
+"minimumShares": "10",
+"nominalShares": "20",
+"maximumShares": "30",
+"minimumActivePeriodForDividends": "1",
+"minimumactiveperiodFrequencyType": 0,
+"lockinPeriodFrequency": "1",
+"lockinPeriodFrequencyType": 1,
+"allowDividendCalculationForInactiveClients": "true",
+"marketPricePeriods": [{
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy",
+	"fromDate": "04 May 2016",
+	"shareValue": "2"
+}],
+"chargesSelected": [{
+	"id": 20
+}],
+"accountingRule": "1"	
+}
+
+			</code>
+			<code class="method-response">
+{
+  "resourceId": 1
+}
+			</code>
+			<code class="method-request">POST shareproducts
+Content-Type: application/json
+Request Body:
+{
+"name": "Share Product",
+"shortName": "SP",
+"description": "Description",
+"currencyCode": "USD",
+"digitsAfterDecimal": 2,
+"inMultiplesOf": "1",
+"locale": "en",
+"totalShares": "100000",
+"sharesIssued": "100000",
+"unitPrice": "1",
+"minimumShares": "1000",
+"nominalShares": "2000",
+"maximumShares": "5000",
+"minimumActivePeriodForDividends": "1",
+"minimumactiveperiodFrequencyType": 0,
+"lockinPeriodFrequency": "1",
+"lockinPeriodFrequencyType": 1,
+"allowDividendCalculationForInactiveClients": "true",
+"marketPricePeriods": [{
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy",
+	"fromDate": "04 May 2016",
+	"shareValue": "2"
+}],
+"chargesSelected": [{
+	"id": 20
+}],
+"accountingRule": "2",
+"shareReferenceId": 5,
+"shareSuspenseId": 8,
+"shareEquityId": 66,
+"incomeFromFeeAccountId": 2	
+}
+			</code>
+			<code class="method-response">
+{
+  "resourceId": 1
+}
+			</code>
+        </div>
+    </div>
+
+<a id="shareproducts_retrieve" name="shareproducts_retrieve" class="old-syle-anchor">&nbsp;</a>
+    <div class="method-section">
+        <div class="method-description">
+            <h4>Retrieve a Share Product</h4>
+            <p>Example Requests: </p>
+            <div class=apiClick>products/share/1</div>
+            <br><br>
+            <div class=apiClick>products/share/1?template=true</div>
+        </div>
+        <div class="method-example">
+			<code class="method-declaration">GET https://Domain Name/api/v1/products/share/1</code>
+			<code class="method-response">
+{
+	"id": 1,
+	"name": "Share Product",
+	"shortName": "SP",
+	"description": "SP",
+	"currency": {
+		"code": "USD",
+		"name": "US Dollar",
+		"decimalPlaces": 2,
+		"inMultiplesOf": 100,
+		"displaySymbol": "$",
+		"nameCode": "currency.USD",
+		"displayLabel": "US Dollar ($)"
+	},
+	"totalShares": 100,
+	"totalSharesIssued": 50,
+	"unitPrice": 1.00,
+	"shareCapital": 50.00,
+	"minimumShares": 1,
+	"nominalShares": 10,
+	"maximumShares": 50,
+	"marketPrice": [
+	{
+		"id": 4,
+		"fromDate": "Feb 1, 2016",
+		"shareValue": 1.00
+	},
+	{
+		"id": 5,
+		"fromDate": "May 3, 2016",
+		"shareValue": 5.00
+	}],
+	"charges": [{
+		"id": 20,
+		"name": "Share Account Activation Flat",
+		"active": true,
+		"penalty": false,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 1.000000,
+		"chargeTimeType": {
+			"id": 13,
+			"code": "chargeTimeType.activation",
+			"value": "Share Account Activate"
+		},
+		"chargeAppliesTo": {
+			"id": 4,
+			"code": "chargeAppliesTo.shares",
+			"value": "Shares"
+		},
+		"chargeCalculationType": {
+			"id": 1,
+			"code": "chargeCalculationType.flat",
+			"value": "Flat"
+		},
+		"chargePaymentMode": {
+			"id": 0,
+			"code": "chargepaymentmode.regular",
+			"value": "Regular"
+		}
+	}],
+	"allowDividendCalculationForInactiveClients": true,
+	"lockinPeriod": 1,
+	"lockPeriodTypeEnum": {
+		"id": 0,
+		"value": "Days"
+	},
+	"minimumActivePeriod": 1,
+	"minimumActivePeriodForDividendsTypeEnum": {
+		"id": 0,
+		"value": "Days"
+	},
+	"accountingRule": {
+		"id": 2,
+		"code": "accountingRuleType.cash",
+		"value": "CASH BASED"
+	},
+	"accountingMappings": {
+		"shareReferenceId": {
+			"id": 1,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "ASSET_ED1461237837829"
+		},
+		"incomeFromFeeAccountId": {
+			"id": 14,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "INCOME_OY1461237869836"
+		},
+		"shareEquityId": {
+			"id": 66,
+			"name": "Equity Account",
+			"glCode": "EQUITY1"
+		},
+		"shareSuspenseId": {
+			"id": 8,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "LIABILITY_MA1461237860198"
+		}
+	},
+	"currencyOptions": [{
+		"code": "USD",
+		"name": "US Dollar",
+		"decimalPlaces": 2,
+		"displaySymbol": "$",
+		"nameCode": "currency.USD",
+		"displayLabel": "US Dollar ($)"
+	}],
+	"chargeOptions": [{
+		"id": 20,
+		"name": "Share Account Activation Flat",
+		"active": true,
+		"penalty": false,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 1.000000,
+		"chargeTimeType": {
+			"id": 13,
+			"code": "chargeTimeType.activation",
+			"value": "Share Account Activate"
+		},
+		"chargeAppliesTo": {
+			"id": 4,
+			"code": "chargeAppliesTo.shares",
+			"value": "Shares"
+		},
+		"chargeCalculationType": {
+			"id": 1,
+			"code": "chargeCalculationType.flat",
+			"value": "Flat"
+		},
+		"chargePaymentMode": {
+			"id": 0,
+			"code": "chargepaymentmode.regular",
+			"value": "Regular"
+		}
+	},
+	{
+		"id": 21,
+		"name": "Share Purchase %",
+		"active": true,
+		"penalty": false,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 0.500000,
+		"chargeTimeType": {
+			"id": 14,
+			"code": "chargeTimeType.sharespurchase",
+			"value": "Share Purchase"
+		},
+		"chargeAppliesTo": {
+			"id": 4,
+			"code": "chargeAppliesTo.shares",
+			"value": "Shares"
+		},
+		"chargeCalculationType": {
+			"id": 2,
+			"code": "chargeCalculationType.percent.of.amount",
+			"value": "% Amount"
+		},
+		"chargePaymentMode": {
+			"id": 0,
+			"code": "chargepaymentmode.regular",
+			"value": "Regular"
+		}
+	}
+	],
+	"minimumActivePeriodFrequencyTypeOptions": [{
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	}],
+	"lockinPeriodFrequencyTypeOptions": [{
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	},
+	{
+		"id": 1,
+		"code": "savings.lockin.sharePeriodFrequencyType.weeks",
+		"value": "Weeks"
+	},
+	{
+		"id": 2,
+		"code": "savings.lockin.sharePeriodFrequencyType.months",
+		"value": "Months"
+	},
+	{
+		"id": 3,
+		"code": "savings.lockin.sharePeriodFrequencyType.years",
+		"value": "Years"
+	}],
+	"accountingMappingOptions": {
+		"liabilityAccountOptions": [{
+			"id": 4,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "LIABILITY_2T1461237838897",
+			"disabled": false,
+			"manualEntriesAllowed": true,
+			"type": {
+				"id": 2,
+				"code": "accountType.liability",
+				"value": "LIABILITY"
+			},
+			"usage": {
+				"id": 1,
+				"code": "accountUsage.detail",
+				"value": "DETAIL"
+			},
+			"description": "DEFAULT_DESCRIPTION",
+			"nameDecorated": "ACCOUNT_NAME_1FJBQ",
+			"tagId": {
+				"id": 0,
+				"isActive": false
+			}
+		}],
+		"assetAccountOptions": [{
+			"id": 1,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "ASSET_ED1461237837829",
+			"disabled": false,
+			"manualEntriesAllowed": true,
+			"type": {
+				"id": 1,
+				"code": "accountType.asset",
+				"value": "ASSET"
+			},
+			"usage": {
+				"id": 1,
+				"code": "accountUsage.detail",
+				"value": "DETAIL"
+			},
+			"description": "DEFAULT_DESCRIPTION",
+			"nameDecorated": "ACCOUNT_NAME_1FJBQ",
+			"tagId": {
+				"id": 0,
+				"isActive": false
+			}
+		}],
+		"incomeAccountOptions": [{
+			"id": 2,
+			"name": "ACCOUNT_NAME_1FJBQ",
+			"glCode": "INCOME_9O1461237838422",
+			"disabled": false,
+			"manualEntriesAllowed": true,
+			"type": {
+				"id": 4,
+				"code": "accountType.income",
+				"value": "INCOME"
+			},
+			"usage": {
+				"id": 1,
+				"code": "accountUsage.detail",
+				"value": "DETAIL"
+			},
+			"description": "DEFAULT_DESCRIPTION",
+			"nameDecorated": "ACCOUNT_NAME_1FJBQ",
+			"tagId": {
+				"id": 0,
+				"isActive": false
+			}
+		}],
+		"equityAccountOptions": [{
+			"id": 66,
+			"name": "Equity Account",
+			"glCode": "EQUITY1",
+			"disabled": false,
+			"manualEntriesAllowed": true,
+			"type": {
+				"id": 3,
+				"code": "accountType.equity",
+				"value": "EQUITY"
+			},
+			"usage": {
+				"id": 1,
+				"code": "accountUsage.detail",
+				"value": "DETAIL"
+			},
+			"nameDecorated": "Equity Account",
+			"tagId": {
+				"id": 0,
+				"isActive": false
+			}
+		}]
+	}
+}
+			</code>
+        </div>
+</div>
+
+<a id="shareproducts_update" name="shareproducts_update" class="old-syle-anchor">&nbsp;</a>
+    <div class="method-section">
+        <div class="method-description">
+            <h4>Update a Share Product</h4>
+        </div>
+        <div class="method-example">
+            <code class="method-declaration">PUT https://Domain Name/api/v1/products/share/{productId}</code>
+			<code class="method-request">POST shareproducts/1
+Content-Type: application/json
+Request Body:
+{
+  "description": "Share Product Description.",
+  "locale": "en",
+  "unitPrice": "5.0"
+}
+			</code>
+			<code class="method-response">
+{
+  "resourceId": 1,
+  "changes": {
+    "description": "Share Product Description.",
+    "unitPrice": 5.0,
+    "locale": "en"
+  }
+}
+			</code>
+        </div>
+</div>
+
+<a id="shareproducts_list" name="shareproducts_list" class="old-syle-anchor">&nbsp;</a>
+    <div class="method-section">
+        <div class="method-description">
+            <h4>List Share Products</h4>
+			<table class=matrixHeading>
+                <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Mandatory Fields</div></td></tr>
+                <tr class=alt>
+                	<td>limit, offset</td>
+                </tr>
+            </table>
+            <p>Example Requests:</p>
+            <div class=apiClick>shareproducts</div>
+        </div>
+        <div class="method-example">
+		
+            <code class="method-declaration">GET https://Domain Name/api/v1/products/share?limit=10&offset=0</code>
+            <code class="method-response">
+			
+{
+	"totalFilteredRecords": 1,
+	"pageItems": [{
+		"id": 1,
+		"name": "Share Product",
+		"shortName": "Share Product Description",
+		"totalShares": 100
+	}]
+}
+</code>
+       </div>
+</div>
+	
     <a id="savingsproducts_create" name="savingsproducts_create" class="old-syle-anchor">&nbsp;</a>
     <div class="method-section">
         <div class="method-description">
@@ -19996,7 +20762,7 @@ Content-Type: application/json
             <br/>
             <table class=matrixHeading>
                 <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Optional Fields</div></td></tr>
-                <tr class=alt><td>minRequiredOpeningBalance, lockinPeriodFrequency, lockinPeriodFrequencyType, withdrawalFeeForTransfers, paymentChannelToFundSourceMappings, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, allowOverdraft, overdraftLimit, minBalanceForInterestCalculation</tr>
+                <tr class=alt><td>minRequiredOpeningBalance, lockinPeriodFrequency, lockinPeriodFrequencyType, withdrawalFeeForTransfers, paymentChannelToFundSourceMappings, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, allowOverdraft, overdraftLimit, minBalanceForInterestCalculation,withHoldTax,taxGroupId</tr>
             </table>
         </div>
         <div class="method-example">
@@ -20434,6 +21200,12 @@ Content-Type: application/json
 					product and the type of the accounting rule to be used
 					<span>Example Values:</span>1=NONE,2=CASH_BASED</td>
 				</tr>
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, sets an indicator for applying withhold tax on interest posting for savings account </td></tr>
+
+				<tr class=alt><td>taxGroupId</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If withhold tax set as true, with hold tax will be applied as per the tax group provided </td></tr>
+
 
 	        </table>
 	    </div>
@@ -20460,7 +21232,7 @@ Content-Type: application/json
             <br/>
             <table class=matrixHeading>
                 <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Optional Fields</div></td></tr>
-                <tr class=alt><td>lockinPeriodFrequency, lockinPeriodFrequencyType, maxDepositTerm, maxDepositTermTypeId, inMultiplesOfDepositTerm, inMultiplesOfDepositTermTypeId, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, charts</tr>
+                <tr class=alt><td>lockinPeriodFrequency, lockinPeriodFrequencyType, maxDepositTerm, maxDepositTermTypeId, inMultiplesOfDepositTerm, inMultiplesOfDepositTermTypeId, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, charts, , withHoldTax, taxGroupId</tr>
             </table>
         </div>
         <div class="method-example">
@@ -20936,6 +21708,11 @@ Content-Type: application/json
 					product and the type of the accounting rule to be used
 					<span>Example Values:</span>1=NONE,2=CASH_BASED</td>
 				</tr>
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, sets an indicator for applying withhold tax on interest posting for savings account </td></tr>
+
+				<tr class=alt><td>taxGroupId</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If withhold tax set as true, with hold tax will be applied as per the tax group provided </td></tr>
 
 	        </table>
 	    </div>
@@ -20962,7 +21739,7 @@ Content-Type: application/json
             <br/>
             <table class=matrixHeading>
                 <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Optional Fields</div></td></tr>
-                <tr class=alt><td>lockinPeriodFrequency, lockinPeriodFrequencyType, maxDepositTerm, maxDepositTermTypeId, inMultiplesOfDepositTerm, inMultiplesOfDepositTermTypeId, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, charts, minDepositAmount, maxDepositAmount</tr>
+                <tr class=alt><td>lockinPeriodFrequency, lockinPeriodFrequencyType, maxDepositTerm, maxDepositTermTypeId, inMultiplesOfDepositTerm, inMultiplesOfDepositTermTypeId, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, feeToIncomeAccountMappings, penaltyToIncomeAccountMappings, charges, charts, minDepositAmount, maxDepositAmount, withHoldTax, taxGroupId</tr>
             </table>
         </div>
         <div class="method-example">
@@ -21344,7 +22121,1119 @@ Content-Type: application/json
         </div>
     </div>
 <!-- end of fixed deposit products api docs -->
+<!-- start of share accounts api doc-->
 
+<a id="shareaccounts" name="shareaccounts" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Share Account:</h2>
+	        <p>Share accounts are instances of a praticular share product created for an individual. 
+			An application process around the creation of accounts is also supported.</p>
+
+	        <table class=matrixHeading>
+	        	<thead>
+	        		<tr class="matrixHeadingBG">
+	        			<td class="fineractHeading2">Starting State</td>
+	        			<td class="fineractHeading2">Action</td>
+	        			<td class="fineractHeading2">Resultant State</td>
+	        		</tr>
+	        	</thead>
+	        	<tbody>
+	        		<tr>
+	        			<td>-</td>
+	        			<td>Submit</td>
+	        			<td>Submitted and pending approval</td>
+	        		</tr>
+	        		<tr>
+	        			<td>Submitted and pending approval</td>
+	        			<td>Reject</td>
+	        			<td>Closed - Rejected</td>
+	        		</tr>
+	        		<tr>
+	        			<td>Submitted and pending approval</td>
+	        			<td>Approve</td>
+	        			<td>Approved</td>
+	        		</tr>
+	        		<tr>
+	        			<td>Approved</td>
+	        			<td>Undo Approval</td>
+	        			<td>Submitted and pending approval</td>
+	        		</tr>
+	        		<tr>
+	        			<td>Approved</td>
+	        			<td>Activate</td>
+	        			<td>Active</td>
+	        		</tr>
+	        	</tbody>
+	        </table>
+	        <br/>
+	      	<table class=matrixHeading>
+	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Field Descriptions</div></td></tr>
+
+				<tr class=alt><td>clientId</td></tr>
+				<tr><td class=fielddesc>The client you are creating the share account for. <i>clientId</i> must be provided.</td></tr>
+
+				<tr class=alt><td>productId</td></tr>
+				<tr><td class=fielddesc>The id of the product used for this share account. The share account <b>inherits the selected currency</b> of the product and <b>possibly other details if not overridden</b> in the share account creation request.</td></tr>
+
+        		<tr class=alt><td>accountNo</td></tr>
+				<tr><td class=fielddesc>The account no. associated with this account. Is auto generated if not provided at creation time.</td></tr>
+
+				<tr class=alt><td>externalId</td></tr>
+				<tr><td class=fielddesc>A place to put an external reference for this share account useful in migrations e.g. The ID another system uses. If provided, it must be unique.</td></tr>
+
+				<tr class=alt><td>submittedOnDate</td></tr>
+				<tr><td class=fielddesc><i>submittedOnDate</i> must be provided when initially creating share account application. <i>locale</i> and <i>dateFormat</i> parameters must be provided with this.</td></tr>
+
+				<tr class=alt><td>savingsAccountId</td></tr>
+	            <tr><td class=fielddesc>The saving account id in which dividend amount should be posted. </td></tr>
+
+	            <tr class=alt><td>minimumActivePeriod</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, used along with <i>minimumActivePeriodFrequencyType</i> to indicate the length of time that the share account for considering dividends. e.g. <b>60</b> Days</td></tr>
+
+	            <tr class=alt><td>minimumActivePeriodFrequencyType</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, used along with <i>minimumActivePeriod</i> to indicate the length of time that the share account for considering dividends. 0=Days
+	            e.g. 60 <b>Days</b></td></tr>
+
+	            <tr class=alt><td>lockinPeriodFrequency</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, used along with <i>lockinPeriodFrequencyType</i> to indicate the length of time that the shares is 'locked in' and redeems are not allowed. e.g. <b>6</b> Months</td></tr>
+
+	            <tr class=alt><td>lockinPeriodFrequencyType</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If provided, used along with <i>lockinPeriodFrequency</i> to indicate the length of time that the shares is 'locked in' and redeems are not allowed. 0=Days, 1=Weeks, 2=Months, 3=Years
+	            e.g. 6 <b>Months</b></td></tr>
+
+	            <tr class=alt><td>applicationDate</td></tr>
+	            <tr><td class=fielddesc>Application date on which the first shares purchase should be considerd.</td></tr>
+
+	            <tr class=alt><td>requestedShares</td></tr>
+	        </table>
+	    </div>
+	</div>
+	
+<a id="shareaccount_template" name="shareaccount_template" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Retrieve Share Account Template:</h2>
+	            <p>This is a convenience resource. It can be useful when building maintenance user interface screens for client applications. The template data returned consists of any or all of:
+	                <ul>
+	                <li class=normalli>Field Defaults</li>
+	                <li class=normalli>Allowed Value Lists</li>
+	                </ul>
+	            </p>
+	        <h4>Arguments</h4>
+	        <dl class="argument-list">
+	            <dt>clientId</dt>
+	            <dd>Integer <span>mandatory</span></dd>
+	            <dt>productId</dt>
+	            <dd>Integer <span>optional</span></dd>
+	            <dd>If entered, productId, productName and selectedProduct fields are returned.</dd>
+	        </dl>
+	        <p>Example Requests: </p>
+	        <div class=apiClick>accounts/share/template?clientId=1</div>
+	        <br><br>
+	        <div class=apiClick>accounts/share/template?clientId=1&productId=1</div>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://Domain Name/api/v1/accounts/share/template?clientId={clientId}</code>
+			<code class="method-response">
+{
+	"clientId": 7,
+	"clientName": "Client Name",
+	"productOptions": [{
+		"id": 1,
+		"name": "Share Product",
+		"shortName": "SP",
+		"totalShares": 100
+	}]
+}
+			</code>
+	    </div>
+
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://Domain Name/api/v1/accounts/share/template?clientId={clientId}&productId={productId}</code>
+			<code class="method-response">
+{
+	"clientId": 7,
+	"clientName": "Client Name",
+	"defaultShares": 100,
+	"currency": {
+		"code": "USD",
+		"name": "US Dollar",
+		"decimalPlaces": 2,
+		"inMultiplesOf": 100,
+		"displaySymbol": "$",
+		"nameCode": "currency.USD",
+		"displayLabel": "US Dollar ($)"
+	},
+	"currentMarketPrice": 5.00,
+	"charges": [{
+		"chargeId": 20,
+		"name": "Share Account Activation Flat",
+		"chargeTimeType": {
+			"id": 13,
+			"code": "chargeTimeType.activation",
+			"value": "Share Account Activate"
+		},
+		"chargeCalculationType": {
+			"id": 1,
+			"code": "chargeCalculationType.flat",
+			"value": "Flat"
+		},
+		"amount": 1.000000,
+		
+	}],
+	"lockinPeriodFrequencyTypeOptions": [{
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	},
+	{
+		"id": 1,
+		"code": "savings.lockin.sharePeriodFrequencyType.weeks",
+		"value": "Weeks"
+	},
+	{
+		"id": 2,
+		"code": "savings.lockin.sharePeriodFrequencyType.months",
+		"value": "Months"
+	},
+	{
+		"id": 3,
+		"code": "savings.lockin.sharePeriodFrequencyType.years",
+		"value": "Years"
+	}],
+	"minimumActivePeriodFrequencyTypeOptions": [{
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	}],
+	"clientSavingsAccounts": [{
+		"id": 13,
+		"accountNo": "000000013",
+		"depositType": {
+			"id": 100,
+			"code": "depositAccountType.savingsDeposit",
+			"value": "Savings"
+		}
+	}]
+}
+			</code>
+	    </div>
+</div>
+
+<a id="shareaccount_create" name="shareaccount_create" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Submit new share application</h2>
+	        <br/>
+	        <table class=matrixHeading>
+	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Mandatory Fields</div></td></tr>
+	            <tr class=alt><td>clientId, productId, submittedDate, savingsAccountId, requestedShares, applicationDate</td></tr>
+	        </table>
+	        <br/>
+	        <table class=matrixHeading>
+	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Optional Fields</div></td></tr>
+	            <tr class=alt><td>accountNo, externalId</td></tr>
+	        </table>
+	        <br/>
+	        <table class=matrixHeading>
+	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Inherited from Product (if not provided)</div></td></tr>
+	            <tr class=alt><td> minimumActivePeriod, minimumActivePeriodFrequencyType, lockinPeriodFrequency, lockinPeriodFrequencyType</td>
+	       		</tr>
+	        </table>
+	    </div>
+	    <div class="method-example">
+	    	<p>Minimal request: accountNo auto generated, remaining details inherited from savings product.</p>
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share</code>
+	        <code class="method-request">POST savingsaccount
+Content-Type: application/json
+Request Body:
+{
+	"clientId": "7",
+	"productId": 1,
+	
+	"requestedShares": 100,
+	"externalId": "1",
+	"submittedDate": "01 May 2016",
+	"minimumActivePeriod": "1",
+	"minimumActivePeriodFrequencyType": 0,
+	"lockinPeriodFrequency": "1",
+	"lockinPeriodFrequencyType": 0,
+	"applicationDate": "01 May 2016",
+	"allowDividendCalculationForInactiveClients": true,
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy",
+	"charges": [{
+		"chargeId": 20,
+		"amount": 1
+	},
+	{
+		"chargeId": 21,
+		"amount": 0.5
+	},
+	{
+		"chargeId": 23,
+		"amount": 2
+	}],
+	
+	"savingsAccountId": 13
+}
+			</code>
+	        <code class="method-response">
+{
+  "resourceId": 1
+}
+	        </code>
+	    </div>
+</div>
+	
+<a id="shareaccount_approve" name="shareaccount_approve" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Approve share application</h2>
+	        <p>Approves share application so long as its in 'Submitted and pending approval' state.</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=approve</code>
+	        <code class="method-request">POST shareaccount/1?command=approve
+Content-Type: application/json
+Request Body:
+{
+"note":"notes",
+"approvedDate":"01 May 2016",
+"locale":"en",
+"dateFormat":"dd MMMM yyyy"
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId": 1,
+  "changes": {
+    "status": {
+      "id": 200,
+      "code": "shareAccountStatusType.approved",
+      "value": "Approved",
+      "submittedAndPendingApproval": false,
+      "approved": true,
+      "rejected": false,
+      "active": false,
+      "closed": false
+    },
+    "locale": "en",
+    "dateFormat": "dd MMMM yyyy",
+    "approvedDate": "01 May 2016"
+  }
+}
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_undoapproval" name="shareaccount_undoapproval" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Undo approval share application</h2>
+	        <p>Will move 'approved' share application back to 'Submitted and pending approval' state.</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=undoApproval</code>
+	        <code class="method-request">POST shareaccount/1?command=undoApproval
+Content-Type: application/json
+Request Body:
+{
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId": 1,
+  "changes": {
+    "status": {
+      "id": 100,
+      "code": "shareAccountStatusType.submitted.and.pending.approval",
+      "value": "Submitted and pending approval",
+      "submittedAndPendingApproval": true,
+      "approved": false,
+      "rejected": false,
+      "active": false,
+      "closed": false
+    },
+    "approvedOnDate": ""
+  }
+}
+	        </code>
+	    </div>
+</div>
+	
+<a id="shareaccount_reject" name="shareaccount_reject" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Reject share application</h2>
+	        <p>Rejects share application so long as its in 'Submitted and pending approval' state.</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=reject</code>
+	        <code class="method-request">POST shareaccount/1?command=reject
+Content-Type: application/json
+Request Body:
+{
+  "locale": "en",
+  "dateFormat": "dd MMMM yyyy",
+  "rejectedDate": "03 March 2013"
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId": 1,
+  "changes": {
+    "status": {
+      "id": 500,
+      "code": "shareAccountStatusType.rejected",
+      "value": "Rejected",
+      "submittedAndPendingApproval": false,
+      "approved": false,
+      "rejected": true,
+      "active": false,
+      "closed": true
+    },
+    "locale": "en",
+    "dateFormat": "dd MMMM yyyy",
+    "rejectedDate": "03 March 2013",
+    "closedDate": "03 March 2013"
+  }
+}
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_activate" name="shareaccount_activate" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Activate a share account</h2>
+	        <p>Results in an approved share application being converted into an 'active' share account.</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=activate</code>
+	        <code class="method-request">POST shareaccount/1?command=activate
+Content-Type: application/json
+Request Body:
+{
+  "locale": "en",
+  "dateFormat": "dd MMMM yyyy",
+  "activatedDate": "01 March 2013"
+}
+			</code>
+	        <code class="method-response">
+{
+  "resourceId": 1,
+  "changes": {
+    "status": {
+      "id": 300,
+      "code": "shareAccountStatusType.active",
+      "value": "Active",
+      "submittedAndPendingApproval": false,
+      "approved": false,
+      "rejected": false,
+      "active": true,
+      "closed": false
+    },
+    "locale": "en",
+    "dateFormat": "dd MMMM yyyy",
+    "activatedDate": "01 March 2013"
+  }
+}
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_close" name="shareaccount_close" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Close a share account</h2>
+	        <p>Results in an Activated share application being converted into an 'closed' share account.</p>
+            <p><i>closedDate</i> is closure date of share account</p>
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG">
+                    <td><div class="fineractHeading2">Mandatory Fields</div></td>
+                </tr>
+                <tr class=alt>
+                    <td>dateFormat,locale,closedDate</td>
+                </tr>
+            </table>
+            <br />
+           
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=close</code>
+	        <code class="method-request">POST shareaccount/5?command=close
+Content-Type: application/json
+Request Body:
+{
+  "dateFormat":"dd MMMM yyyy",
+  "locale":"en",
+  "closedDate":"26 August 2013",
+  "note":"close note"
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId":5,
+  "changes":{
+   "status":{
+    "id":600,
+    "code":"shareAccountStatusType.closed",
+    "value":"Closed",
+    "submittedAndPendingApproval":false,
+    "approved":false,
+    "rejected":false,
+    "active":false,
+    "closed":true
+    },
+  "locale":"en",
+  "dateFormat":"dd MMMM yyyy",
+  "closedOnDate":"26 August 2013",
+  "note":"close note"
+  }
+}
+	        
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_applyadditionalshares" name="shareaccount_applyadditionalshares" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Apply additional shares on a share account</h2>
+	          <p><i>requestedDate</i> is requsted date of share purchase</p>
+			<p><i>requestedShares</i> is number of shares to be purchase</p>
+            
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG">
+                    <td><div class="fineractHeading2">Mandatory Fields</div></td>
+                </tr>
+                <tr class=alt>
+                    <td>dateFormat,locale,requestedDate, requestedShares</td>
+                </tr>
+            </table>
+            <br />
+           
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=applyadditionalshares</code>
+	        <code class="method-request">POST shareaccount/5?command=applyadditionalshares
+Content-Type: application/json
+Request Body:
+{
+	"requestedDate": "04 May 2016",
+	"requestedShares": "10",
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy"
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId":5,
+}
+	        
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_approveadditionalshares" name="shareaccount_approveadditionalshares" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Approve additional shares request on a share account</h2>
+	         <p><i>requestedShares</i> is Share purchase transaction ids</p>
+            
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG">
+                    <td><div class="fineractHeading2">Mandatory Fields</div></td>
+                </tr>
+                <tr class=alt>
+                    <td>requestedShares</td>
+                </tr>
+            </table>
+            <br />
+           
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=approveadditionalshares</code>
+	        <code class="method-request">POST shareaccount/5?command=approveadditionalshares
+Content-Type: application/json
+Request Body:
+{
+	"requestedShares": [{
+		"id": 34
+	}]
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId":5,
+}
+	        
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_rejectadditionalshares" name="shareaccount_rejectadditionalshares" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Reject additional shares request on a share account</h2>
+	         <p><i>requestedShares</i> is Share purchase transaction ids</p>
+            
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG">
+                    <td><div class="fineractHeading2">Mandatory Fields</div></td>
+                </tr>
+                <tr class=alt>
+                    <td>requestedShares</td>
+                </tr>
+            </table>
+            <br />
+           
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=rejectadditionalshares</code>
+	        <code class="method-request">POST shareaccount/5?command=rejectadditionalshares
+Content-Type: application/json
+Request Body:
+{
+	"requestedShares":[{"id":35}]
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId":5,
+}
+	        
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_redeem" name="shareaccount_redeem" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Redeem shares on a share account</h2>
+	        <p>Results redeem some/all shares from share account.</p>
+            <p><i>requestedDate</i> is requsted date of shares redeem</p>
+			<p><i>requestedShares</i> is number of shares to be redeemed</p>
+			
+            <table class=matrixHeading>
+                <tr class="matrixHeadingBG">
+                    <td><div class="fineractHeading2">Mandatory Fields</div></td>
+                </tr>
+                <tr class=alt>
+                    <td>dateFormat,locale,requestedDate,requestedShares</td>
+                </tr>
+            </table>
+            <br />
+           
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://Domain Name/api/v1/accounts/share/{shareAccountId}?command=redeemshares</code>
+	        <code class="method-request">POST shareaccount/5?command=redeemshares
+Content-Type: application/json
+Request Body:
+{
+	"requestedDate": "04 May 2016",
+	"requestedShares": "4",
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy"
+}
+			</code>
+	        <code class="method-response">
+{
+  
+  "resourceId":5,
+}
+	        
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_list" name="shareaccount_list" class="old-syle-anchor">&nbsp;</a>
+    <div class="method-section">
+        <div class="method-description">
+            <h2>List share applications/accounts</h2>
+            <p>Example Requests:</p>
+            <div class=apiClick>shareaccount</div>
+            
+        </div>
+        <div class="method-example">
+            <code class="method-declaration">GET https://Domain Name/api/v1/accounts/share</code>
+            <code class="method-response">
+{
+  "totalFilteredRecords": 1,
+  "pageItems": [
+    {
+      "id": 1,
+      "accountNo": "000000001",
+      "clientId": 1,
+      "clientName": "Client Name",
+      "productId": 1,
+      "productName": "Share Product Name",
+      
+      "status": {
+        "id": 100,
+        "code": "shareAccountStatusType.submitted.and.pending.approval",
+        "value": "Submitted and pending approval",
+        "submittedAndPendingApproval": true,
+        "approved": false,
+        "rejected": false,
+        "active": false,
+        "closed": false
+      },
+      "timeline": {
+        "submittedOnDate": [
+          2013,
+          3,
+          1
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name": "US Dollar",
+        "decimalPlaces": 2,
+        "displaySymbol": "$",
+        "nameCode": "currency.USD",
+        "displayLabel": "US Dollar ($)"
+      },
+	  "purchasedShares" : [
+	  {"id":1,
+	  "purchasedDate":"01 May 2013",
+	  "numberOfShares": 10,
+	  "purchasedPrice": 5
+	  }
+	  ],
+     
+      "summary": {
+        "currency": {
+          "code": "USD",
+          "name": "US Dollar",
+          "decimalPlaces": 2,
+          "displaySymbol": "$",
+          "nameCode": "currency.USD",
+          "displayLabel": "US Dollar ($)"
+        },
+        }
+    }
+  ]
+}
+			</code>
+        </div>
+</div>
+
+<a id="shareaccount_retrieve" name="shareaccount_retrieve" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Retrieve a share application/account:</h2>
+	        
+	        <p>Example Requests : </p>
+	        <div class=apiClick>shareaccount/1</div>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://DomainName/api/v1/accounts/share/{accountId}</code>
+	        <code class="method-response">
+{
+	"id": 2,
+	"accountNo": "000000002",
+	"savingsAccountNumber": "000000013",
+	"clientId": 7,
+	"clientName": "Client_FirstName_2KX8C Client_LastName_NWNG",
+	"productId": 1,
+	"productName": "Share Product",
+	"status": {
+		"id": 300,
+		"code": "shareAccountStatusType.active",
+		"value": "Active",
+		"submittedAndPendingApproval": false,
+		"approved": false,
+		"rejected": false,
+		"active": true,
+		"closed": false
+	},
+	"timeline": {
+		"submittedOnDate": [2016,
+		4,
+		1],
+		"submittedByUsername": "mifos",
+		"submittedByFirstname": "App",
+		"submittedByLastname": "Administrator",
+		"approvedDate": [2016,
+		4,
+		1],
+		"approvedByUsername": "mifos",
+		"approvedByFirstname": "App",
+		"approvedByLastname": "Administrator",
+		"activatedDate": [2016,
+		4,
+		1]
+	},
+	"currency": {
+		"code": "USD",
+		"name": "US Dollar",
+		"decimalPlaces": 2,
+		"inMultiplesOf": 100,
+		"displaySymbol": "$",
+		"nameCode": "currency.USD",
+		"displayLabel": "US Dollar ($)"
+	},
+	"summary": {
+		"id": 2,
+		"accountNo": "000000002",
+		"totalApprovedShares": 1,
+		"totalPendingForApprovalShares": 0,
+		"productId": 1,
+		"productName": "Conflux Share Product",
+		"status": {
+			"id": 300,
+			"code": "shareAccountStatusType.active",
+			"value": "Active",
+			"submittedAndPendingApproval": false,
+			"approved": false,
+			"rejected": false,
+			"active": true,
+			"closed": false
+		},
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"inMultiplesOf": 100,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"timeline": {
+			"submittedOnDate": [2016,
+			4,
+			1],
+			"submittedByUsername": "mifos",
+			"submittedByFirstname": "App",
+			"submittedByLastname": "Administrator",
+			"approvedDate": [2016,
+			4,
+			1],
+			"approvedByUsername": "mifos",
+			"approvedByFirstname": "App",
+			"approvedByLastname": "Administrator",
+			"activatedDate": [2016,
+			4,
+			1]
+		}
+	},
+	"purchasedShares": [{
+		"id": 6,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		1],
+		"numberOfShares": 10,
+		"purchasedPrice": 0.50,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 500,
+			"code": "purchasedSharesType.purchased",
+			"value": "Purchase"
+		},
+		"amount": 5.05,
+		"chargeAmount": 0.05,
+		"amountPaid": 5.05
+	},
+	{
+		"id": 7,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		21],
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 700,
+			"code": "charge.payment",
+			"value": "Charge Payment"
+		},
+		"amount": 1.00,
+		"chargeAmount": 0,
+		"amountPaid": 1.00
+	},
+	{
+		"id": 8,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		2],
+		"numberOfShares": 5,
+		"purchasedPrice": 0.50,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 600,
+			"code": "purchasedSharesType.redeemed",
+			"value": "Redeem"
+		},
+		"amount": 2.45,
+		"chargeAmount": 0.05,
+		"amountPaid": 2.45
+	},
+	{
+		"id": 9,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		3],
+		"numberOfShares": 10,
+		"purchasedPrice": 0.50,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 500,
+			"code": "purchasedSharesType.purchased",
+			"value": "Purchase"
+		},
+		"amount": 5.05,
+		"chargeAmount": 0.05,
+		"amountPaid": 5.05
+	},
+	{
+		"id": 10,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		4],
+		"numberOfShares": 5,
+		"purchasedPrice": 0.50,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 500,
+			"code": "purchasedSharesType.purchased",
+			"value": "Purchase"
+		},
+		"amount": 2.52,
+		"chargeAmount": 0.02,
+		"amountPaid": 2.52
+	},
+	{
+		"id": 11,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		4,
+		5],
+		"numberOfShares": 15,
+		"purchasedPrice": 0.50,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 600,
+			"code": "purchasedSharesType.redeemed",
+			"value": "Redeem"
+		},
+		"amount": 7.35,
+		"chargeAmount": 0.15,
+		"amountPaid": 7.35
+	},
+	{
+		"id": 31,
+		"accountId": 2,
+		"purchasedDate": [2016,
+		5,
+		4],
+		"numberOfShares": 4,
+		"purchasedPrice": 5.00,
+		"status": {
+			"id": 300,
+			"code": "purchasedSharesStatusType.approved",
+			"value": "Approved"
+		},
+		"type": {
+			"id": 600,
+			"code": "purchasedSharesType.redeemed",
+			"value": "Redeem"
+		},
+		"amount": 19.60,
+		"chargeAmount": 0.40,
+		"amountPaid": 19.60
+	}],
+	"savingsAccountId": 13,
+	"currentMarketPrice": 5.00,
+	"lockinPeriod": 1,
+	"lockPeriodTypeEnum": {
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	},
+	"minimumActivePeriod": 1,
+	"minimumActivePeriodTypeEnum": {
+		"id": 0,
+		"code": "savings.lockin.sharePeriodFrequencyType.days",
+		"value": "Days"
+	},
+	"allowDividendCalculationForInactiveClients": true,
+	"charges": [{
+		"id": 9,
+		"chargeId": 20,
+		"accountId": 2,
+		"name": "Share Account Activation Flat",
+		"chargeTimeType": {
+			"id": 13,
+			"code": "chargeTimeType.activation",
+			"value": "Share Account Activate"
+		},
+		"chargeCalculationType": {
+			"id": 1,
+			"code": "chargeCalculationType.flat",
+			"value": "Flat"
+		},
+		"percentage": 0,
+		"amountPercentageAppliedTo": 0,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 1.000000,
+		"amountPaid": 1.000000,
+		"amountWaived": 0,
+		"amountWrittenOff": 0,
+		"amountOutstanding": 0.000000,
+		"amountOrPercentage": 1.000000,
+		"isActive": true
+	},
+	{
+		"id": 7,
+		"chargeId": 21,
+		"accountId": 2,
+		"name": "Share Purchase %",
+		"chargeTimeType": {
+			"id": 14,
+			"code": "chargeTimeType.sharespurchase",
+			"value": "Share Purchase"
+		},
+		"chargeCalculationType": {
+			"id": 2,
+			"code": "chargeCalculationType.percent.of.amount",
+			"value": "% Amount"
+		},
+		"percentage": 1.000000,
+		"amountPercentageAppliedTo": 12.500000,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 0.120000,
+		"amountPaid": 0.120000,
+		"amountWaived": 0,
+		"amountWrittenOff": 0,
+		"amountOutstanding": 0.000000,
+		"amountOrPercentage": 1.000000,
+		"isActive": true
+	},
+	{
+		"id": 8,
+		"chargeId": 23,
+		"accountId": 2,
+		"name": "Share Redeem %",
+		"chargeTimeType": {
+			"id": 15,
+			"code": "chargeTimeType.sharesredeem",
+			"value": "Share Redeem"
+		},
+		"chargeCalculationType": {
+			"id": 2,
+			"code": "chargeCalculationType.percent.of.amount",
+			"value": "% Amount"
+		},
+		"percentage": 2.000000,
+		"amountPercentageAppliedTo": 30.000000,
+		"currency": {
+			"code": "USD",
+			"name": "US Dollar",
+			"decimalPlaces": 2,
+			"displaySymbol": "$",
+			"nameCode": "currency.USD",
+			"displayLabel": "US Dollar ($)"
+		},
+		"amount": 0.600000,
+		"amountPaid": 0.600000,
+		"amountWaived": 0,
+		"amountWrittenOff": 0,
+		"amountOutstanding": 0.000000,
+		"amountOrPercentage": 2.000000,
+		"isActive": true
+	}],
+	"dividends": []
+}
+	        </code>
+	    </div>
+</div>
+
+<a id="shareaccount_update" name="shareaccount_update" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Modify a share application</h2>
+	        <p>Share application can only be modified when in 'Submitted and pending approval' state. Once the application is approved, the details cannot be changed using this method. Specific api endpoints will be created to allow change of interest detail such as rate, compounding period, posting period etc</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">PUT https://Domain Name/api/v1/accounts/share/{accountsId}</code>
+	        <code class="method-request">PUT shareaccount/1
+Content-Type: application/json
+No Request Body:
+{
+	"locale": "en",
+	"dateFormat": "dd MMMM yyyy",
+	"applicationDate": "01 April 2016",
+	"requestedShares": "20",
+}
+	        </code>
+	        <code class="method-response">
+{
+  
+  "resourceId": 1,
+  "changes": {
+  "dateFormat": "dd MMMM yyyy",
+    "applicationDate": "01 April 2016",
+	"requestedShares": "20",
+    "locale": "en"
+  }
+}
+	        </code>
+	    </div>
+	</div>
+	
+<!-- end of share accounts api doc
 <!-- start of savings accounts api -->
 	<a id="savingsaccounts" name="savingsaccounts" class="old-syle-anchor">&nbsp;</a>
 	<div class="method-section">
@@ -21448,6 +23337,10 @@ Content-Type: application/json
 
 				<tr class=alt><td>overdraftLimit</td></tr>
 	            <tr><td class=fielddesc><b>Optional</b>: If provided, sets the maximum allowed overdraft amount for a  savings account e.g. <b>5,000</b> else set the limit as zero</td></tr>
+				
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If tax group provided at product level, will allow to Enable or disable withhold tax on interest posting for savings account </td></tr>
+
 
 	        </table>
 	    </div>
@@ -21812,7 +23705,7 @@ Content-Type: application/json
 	        <br/>
 	        <table class=matrixHeading>
 	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Inherited from Product (if not provided)</div></td></tr>
-	            <tr class=alt><td>nominalAnnualInterestRate, interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, minRequiredOpeningBalance, lockinPeriodFrequency, lockinPeriodFrequencyType, withdrawalFeeForTransfers, allowOverdraft, overdraftLimit</td>
+	            <tr class=alt><td>nominalAnnualInterestRate, interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, minRequiredOpeningBalance, lockinPeriodFrequency, lockinPeriodFrequencyType, withdrawalFeeForTransfers, allowOverdraft, overdraftLimit, withHoldTax</td>
 	       		</tr>
 	        </table>
 	    </div>
@@ -21881,7 +23774,7 @@ Request Body:
 	    </div>
 	</div>
 
-	<a id="savingsaccounts_approve" name="savingsaccounts_approve" class="old-syle-anchor">&nbsp;</a>
+<a id="savingsaccounts_approve" name="savingsaccounts_approve" class="old-syle-anchor">&nbsp;</a>
 	<div class="method-section">
 	    <div class="method-description">
 	        <h2>Approve savings application</h2>
@@ -22529,6 +24422,34 @@ No Request Body:
     "locale": "en"
   }
 }
+	        </code>
+	    </div>
+	</div>
+	
+	
+	<a id="savingsaccounts_withholdtaxupdate" name="savingsaccounts_withholdtaxupdate" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Modify savings account withhold tax applicability</h2>
+	        <p>Savings application's withhold tax can  be modified when in 'Active' state. Once the application is activated, can modify the account withhold tax to post tax or vice-versa</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">PUT https://Domain Name/api/v1/savingsaccounts/{accountsId}?command=updateWithHoldTax</code>
+	        <code class="method-request">PUT savingsaccounts/1?command=updateWithHoldTax
+Content-Type: application/json
+No Request Body:
+			{
+				"withHoldTax": false
+			}
+	        </code>
+	        <code class="method-response">
+			{
+				"savingsId": 138,
+				"resourceId": 138,
+				"changes": {
+					"withHoldTax": false
+				}
+			}
 	        </code>
 	    </div>
 	</div>
@@ -23620,6 +25541,9 @@ No Request Body:
 	            <tr>
 	            	<td class=fielddesc><b>Optional</b>: Must provide when <i>preClosurePenalApplicable</i> is true. Used along with <i>preClosurePenalInterest</i> to decide what should be the applicable interest rate to which penalalty can be applied on Pre-mature closure of accounts. 1=Whole Term, 2=Till Premature withdrawal e.g. “1%” means 1% less than the interest rate applicable till premature withdrawal.</td>
 	            </tr>
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If tax group provided at product level, will allow to Enable or disable withhold tax on interest posting for savings account </td></tr>
+
 
 	        </table>
 	    </div>
@@ -23984,7 +25908,7 @@ No Request Body:
 	        <br/>
 	        <table class=matrixHeading>
 	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Inherited from Product (if not provided)</div></td></tr>
-	            <tr class=alt><td>interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, lockinPeriodFrequency, lockinPeriodFrequencyType, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, charts</td>
+	            <tr class=alt><td>interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, lockinPeriodFrequency, lockinPeriodFrequencyType, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, charts, withHoldTax</td>
 	       		</tr>
 	        </table>
 	    </div>
@@ -25084,6 +27008,10 @@ No Request Body:
 	            	<td class=fielddesc><b>Optional</b>: Must provide when <i>preClosurePenalApplicable</i> is true. Used along with <i>preClosurePenalInterest</i> to decide what should be the applicable interest rate to which penalalty can be applied on Pre-mature closure of accounts. 1=Whole Term, 2=Till Premature withdrawal e.g. “1%” means 1% less than the interest rate applicable till premature withdrawal.</td>
 	            </tr>
 
+				<tr class=alt><td>withHoldTax</td></tr>
+	            <tr><td class=fielddesc><b>Optional</b>: If tax group provided at product level, will allow to Enable or disable withhold tax on interest posting for savings account </td></tr>
+
+				
 	        </table>
 	    </div>
 	</div>
@@ -25447,7 +27375,7 @@ No Request Body:
 	        <br/>
 	        <table class=matrixHeading>
 	            <tr class="matrixHeadingBG"><td><div class="fineractHeading2">Inherited from Product (if not provided)</div></td></tr>
-	            <tr class=alt><td>interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, lockinPeriodFrequency, lockinPeriodFrequencyType, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, charts</td>
+	            <tr class=alt><td>interestCompoundingPeriodType, interestCalculationType, interestCalculationDaysInYearType, lockinPeriodFrequency, lockinPeriodFrequencyType, preClosurePenalApplicable, preClosurePenalInterest, preClosurePenalInterestOnTypeId, charts, withHoldTax</td>
 	       		</tr>
 	        </table>
 	    </div>
@@ -37573,6 +39501,529 @@ No Request Body:
 				</div>
 			</div>
 			<!-- End of floatingrates -->
+			
+			<!-- Tax components-->
+			<a id="taxcomponent" name="taxcomponent" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h3>Tax Components</h3>
+					<p>This defines the Tax Components</p>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Field Descriptions</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>Name of the Tax component
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>percentage</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Percentage that should be applied on a amount as tax.
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>debitAccountType</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Debit Account type that should be applicable only for particular cases depending on requirement ex with hold tax doesn't require debit account for the accounting operation. .
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>debitAcountId</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								GL Account that should debited when tax applied. used only for particular cases depending on requirement ex with hold tax doesn't require debit account for the accounting operation. .
+							</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Credit Account type that should be applicable only for particular cases depending on requirement ex with hold tax  require credit account for the accounting operation. .
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>debitAcountId</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								GL Account that should credited when tax applied. used only for particular cases depending on requirement ex with hold tax require only credit account for the accounting operation. .
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>startDate</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Start date from which this tax component is applicable.
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<a id="create_taxcomponent" name="create_taxcomponent"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Create a new Tax Component</h4>
+					<p>Creates a new Tax Component</p>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name</td>
+						</tr>
+						<tr class=alt>
+							<td>percentage</td>
+						</tr>
+					</table>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Optional Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>debitAccountType</td>
+						</tr>
+						<tr class=alt>
+							<td>debitAcountId</td>
+						</tr>
+						<tr class=alt>
+							<td>creditAccountType</td>
+						</tr>
+						<tr class=alt>
+							<td>creditAcountId</td>
+						</tr>
+						<tr class=alt>
+							<td>startDate</td>
+						</tr>
+					</table>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					POST https://DomainName/api/v1/taxes/component
+					</code>
+					<code class="method-request">
+					POST taxes/component
+					Content-Type: application/json
+					Request Body:
+					{
+						"name": "tax component 1",
+						"percentage": "10",
+						"creditAccountType": 2,
+						"creditAcountId": 4,
+						"locale": "en",
+						"dateFormat": "dd MMMM yyyy",
+						"startDate": "11 April 2016"
+					}
+					</code>
+					<code class="method-response">
+					{
+						"resourceId": 1
+					}
+					</code>
+				</div>
+			</div>
+			<a id="taxcomponents_list" name="taxcomponents_list"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>List Tax Components</h4>
+					<p>List Tax Components/p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					GET https://DomainName/api/v1/taxes/component
+					</code>
+					<code class="method-request">
+					GET taxes/component
+					Content-Type: application/json
+					</code>
+					<code class="method-response">
+					[{
+						"id": 1,
+						"name": "tax component 1",
+						"percentage": 10.000000,
+						"creditAccountType": {
+							"id": 2,
+							"code": "accountType.liability",
+							"value": "LIABILITY"
+						},
+						"creditAccount": {
+							"id": 4,
+							"name": "ACCOUNT_NAME_7BR9C",
+							"glCode": "LIABILITY_PA1460364665046"
+						},
+						"startDate": [2016,
+						4,
+						11],
+						"taxComponentHistories": [{
+							
+						}]
+					},
+					{
+						"id": 2,
+						"name": "tax component 2",
+						"percentage": 10.000000,
+						"creditAccountType": {
+							"id": 2,
+							"code": "accountType.liability",
+							"value": "LIABILITY"
+						},
+						"creditAccount": {
+							"id": 4,
+							"name": "ACCOUNT_NAME_7BR9C",
+							"glCode": "LIABILITY_PA1460364665046"
+						},
+						"startDate": [2016,
+						4,
+						11],
+						"taxComponentHistories": [{
+							
+						}]
+					}]	
+					</code>
+				</div>
+			</div>
+			<a id="retrieve_taxcomponent" name="retrieve_taxcomponent"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Retrieve Tax Component</h4>
+					<p>Retrieve Tax Component</p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					GET https://DomainName/api/v1/taxes/component/1
+					</code>
+					<code class="method-request">
+					GET taxes/component/1
+					Content-Type: application/json
+					</code>
+					<code class="method-response">
+					{
+						"id": 1,
+						"name": "tax component 1",
+						"percentage": 10.000000,
+						"creditAccountType": {
+							"id": 2,
+							"code": "accountType.liability",
+							"value": "LIABILITY"
+						},
+						"creditAccount": {
+							"id": 4,
+							"name": "ACCOUNT_NAME_7BR9C",
+							"glCode": "LIABILITY_PA1460364665046"
+						},
+						"startDate": [2016,
+						4,
+						11],
+						"taxComponentHistories": [{
+							
+						}]
+					}
+					</code>
+				</div>
+			</div>
+						<a id="update_taxcomponent" name="update_taxcomponent"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Update Tax Component</h4>
+					<p>Updates Tax component. Debit and credit account details cannot be modified.
+					All the future tax components would be replaced with the new percentage.</p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					PUT https://DomainName/api/v1/taxes/component/1
+					</code>
+					<code class="method-request">
+					PUT taxes/component/1
+					Content-Type: application/json
+					Request Body:
+					{
+						"name": "tax component 2",
+						"percentage": "15",
+						"locale": "en",
+						"dateFormat": "dd MMMM yyyy",
+						"startDate": "15 April 2016"
+					}
+					</code>
+					<code class="method-response">
+					{
+						"resourceId": 1,
+						"changes": {
+							"percentage": 15,
+							"name": "tax component 2",
+							"startDate": [2016,
+							4,
+							15]
+						}
+					}
+					</code>
+				</div>
+			</div>
+			<!-- End of Tax component -->
+
+			<!-- Tax components-->
+			<a id="taxgroup" name="taxgroup" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h3>Tax Group</h3>
+					<p>This defines the Tax Group</p>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Field Descriptions</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>Name of the Tax Group
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>taxComponents</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Array of tax components to be added part of tax group.
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>id</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Tax group and tax component mapping id.
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>taxComponentId</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Tax component id.
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>startDate</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								Start date from which this tax component is applicable.
+							</td>
+						</tr>
+						<tr class=alt>
+							<td>endDate</td>
+						</tr>
+						<tr>
+							<td class=fielddesc>
+								End date from which this tax component is applicable.
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<a id="create_taxgroup" name="create_taxgroup"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Create a new Tax Group</h4>
+					<p>Creates a new Tax Group</p>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name</td>
+						</tr>
+						<tr class=alt>
+							<td>taxComponents</td>
+						</tr>
+					</table>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields in taxComponents</div></td>
+						</tr>
+						<tr class=alt>
+							<td>taxComponentId</td>
+						</tr>
+					</table>
+					<table class=matrixHeading>
+					<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Optional Fields in taxComponents</div></td>
+						</tr>
+						<tr class=alt>
+							<td>id</td>
+						</tr>
+						<tr class=alt>
+							<td>startDate</td>
+						</tr>
+						<tr class=alt>
+							<td>endDate</td>
+						</tr>
+					</table>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					POST https://DomainName/api/v1/taxes/group
+					</code>
+					<code class="method-request">
+					POST taxes/component
+					Content-Type: application/json
+					Request Body:
+					{
+						"name": "tax group 1",
+						"locale": "en",
+						"taxComponents": [{
+							"taxComponentId": 7,
+							"startDate": "11 April 2016"
+						}],
+						"dateFormat": "dd MMMM yyyy"
+					}  
+					</code>
+					<code class="method-response">
+					{
+						"resourceId": 1
+					}
+					</code>
+				</div>
+			</div>
+			<a id="taxgroup_list" name="taxgroup_list"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>List Tax Group</h4>
+					<p>List Tax Group/p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					GET https://DomainName/api/v1/taxes/group
+					</code>
+					<code class="method-request">
+					GET taxes/group
+					Content-Type: application/json
+					</code>
+					<code class="method-response">
+					[{
+						"id": 6,
+						"name": "Tax_component_Name_PAX65",
+						"taxAssociations": [{
+							"id": 6,
+							"taxComponent": {
+								"id": 6,
+								"name": "Tax_component_Name_FPNXE"
+							},
+							"startDate": [2013,
+							1,
+							1]
+						}]
+					},
+					{
+						"id": 7,
+						"name": "tax group 1",
+						"taxAssociations": [{
+							"id": 7,
+							"taxComponent": {
+								"id": 7,
+								"name": "tax component 2"
+							},
+							"startDate": [2016,
+							4,
+							11]
+						}]
+					}]	
+					</code>
+				</div>
+			</div>
+			<a id="retrieve_taxgroup" name="retrieve_taxgroup"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Retrieve Tax Group</h4>
+					<p>Retrieve Tax Group</p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					GET https://DomainName/api/v1/taxes/group/1
+					</code>
+					<code class="method-request">
+					GET taxes/group/1
+					Content-Type: application/json
+					</code>
+					<code class="method-response">
+					{
+						"id": 7,
+						"name": "tax group 1",
+						"taxAssociations": [{
+							"id": 7,
+							"taxComponent": {
+								"id": 7,
+								"name": "tax component 2"
+							},
+							"startDate": [2016,
+							4,
+							11]
+						}]
+					}
+					</code>
+				</div>
+			</div>
+						<a id="update_taxgroup" name="update_taxgroup"
+			   class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Update Tax Group</h4>
+					<p>Updates Tax Group. Only end date can be up-datable and can insert new tax components.</p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+					PUT https://DomainName/api/v1/taxes/group/1
+					</code>
+					<code class="method-request">
+					PUT taxes/group/1
+					Content-Type: application/json
+					Request Body:
+					{
+						"name": "tax group 2",
+						"locale": "en",
+						"taxComponents": [{
+							"id": 7,
+							"taxComponentId": 7,
+							"endDate": "22 April 2016"
+						},
+						{
+							"taxComponentId": 6,
+							"startDate": "14 April 2016"
+						}],
+						"dateFormat": "dd MMMM yyyy"
+					}
+					</code>
+					<code class="method-response">
+					{
+						"resourceId": 7,
+						"changes": {
+							"addComponents": [6],
+							"modifiedComponents": [{
+								"endDate": "Apr 22, 2016 12:00:00 AM",
+								"taxComponentId": 7
+							}],
+							"name": "tax group 2"
+						}
+					}
+					</code>
+				</div>
+			</div>
+			<!-- End of Tax Group -->
 
 		<!-- start of clients api docs -->
 		<a id="templates" name="clients" class="old-syle-anchor">&nbsp;</a>
@@ -39210,10 +41661,10 @@ No Request Body
 				</div>
 				<div class="method-example">
 					<code class="method-declaration">
-POST https://DomainName/api/v1/userdetails?access_token={access_token}
+POST https://DomainName/api/v1/self/userdetails?access_token={access_token}
 					</code>
 					<code class="method-request">
-POST userdetails?access_token=bWlmb3M6cGFzc3dvcmQ=
+POST self/userdetails?access_token=bWlmb3M6cGFzc3dvcmQ=
 Content-Type: application/json
 No Request Body
 					</code>
@@ -39989,6 +42440,610 @@ GET https://DomainName/api/v1/self/clients/{clientId}/transaction/{transactionId
 				</div>
 			</div>
 
+			<a id="selfloantemplate" name="selfloantemplate" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Retrieve Loan Details Template</h4>
+					<p>This is a convenience resource. It can be useful when
+						building maintenance user interface screens for client
+						applications. The template data returned consists of any or all
+						of:
+					<ul>
+						<li class=normalli>Field Defaults</li>
+						<li class=normalli>Allowed Value Lists</li>
+					</ul>
+					</p>
+					<h5>Arguments</h5>
+					<dl class="argument-list">
+						<dt>templateType</dt>
+						<dd>
+							String <span>mandatory</span>, only allowed value is <span>individual</span>
+						</dd>
+						<dd>
+							<br>templateType value decides the required template data for creating a new loan application.
+
+						</dd>
+						<dd>
+							<br><b>'individual':</b> Loan template data for creating individual loans.
+						</dd>
+						<dt>clientId</dt>
+						<dd>
+							Integer <span>mandatory</span>
+						</dd>
+					</dl>
+					<h5>Optional Arguments</h5>
+					<dl class="argument-list">
+						<dt>productId</dt>
+						<dd>
+							Integer <span>optional</span>
+						</dd>
+						<dd>If entered, productId, productName and selectedProduct
+							fields are returned.</dd>
+
+					</dl>
+					<p>Example Requests:</p>
+					<div class=apiClick>self/loans/template?templateType=individual&clientId=1</div>
+					<br>
+					<br>
+					<div class=apiClick>self/loans/template?templateType=individual&clientId=1&productId=1</div>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+GET https://DomainName/api/v1/self/loans/template?templateType=individual&clientId=1
+					</code>
+					<code class="method-response">
+{
+  "clientId": 1,
+  "clientName": "Kampala first Client",
+  "clientOfficeId": 2,
+  "timeline": {
+    "expectedDisbursementDate": [
+      2013,
+      3,
+      8
+    ]
+  },
+  "productOptions": [
+    {
+      "id": 1,
+      "name": "Kampala Product (with cash accounting)"
+    }
+  ]
+}
+					</code>
+					<code class="method-declaration">
+GET https://DomainName/api/v1/self/loans/template?templateType=individual&clientId=1&productId=1
+					</code>
+					<code class="method-response">
+{
+  "clientId": 1,
+  "clientName": "Kampala first Client",
+  "clientOfficeId": 2,
+  "loanProductId": 1,
+  "loanProductName": "Kampala Product (with cash accounting)",
+  "loanProductDescription": "Typical Kampala loan product with cash accounting enabled for testing.",
+  "currency": {
+    "code": "UGX",
+    "name": "Uganda Shilling",
+    "decimalPlaces": 2,
+    "displaySymbol": "USh",
+    "nameCode": "currency.UGX",
+    "displayLabel": "Uganda Shilling (USh)"
+  },
+  "principal": 1000000,
+  "termFrequency": 12,
+  "termPeriodFrequencyType": {
+    "id": 2,
+    "code": "repaymentFrequency.periodFrequencyType.months",
+    "value": "Months"
+  },
+  "numberOfRepayments": 12,
+  "repaymentEvery": 1,
+  "repaymentFrequencyType": {
+    "id": 2,
+    "code": "repaymentFrequency.periodFrequencyType.months",
+    "value": "Months"
+  },
+  "interestRatePerPeriod": 24,
+  "interestRateFrequencyType": {
+    "id": 3,
+    "code": "interestRateFrequency.periodFrequencyType.years",
+    "value": "Per year"
+  },
+  "annualInterestRate": 24,
+  "amortizationType": {
+    "id": 1,
+    "code": "amortizationType.equal.installments",
+    "value": "Equal installments"
+  },
+  "interestType": {
+    "id": 1,
+    "code": "interestType.flat",
+    "value": "Flat"
+  },
+  "interestCalculationPeriodType": {
+    "id": 1,
+    "code": "interestCalculationPeriodType.same.as.repayment.period",
+    "value": "Same as repayment period"
+  },
+  "transactionProcessingStrategyId": 2,
+  "timeline": {
+    "expectedDisbursementDate": [
+      2013,
+      3,
+      8
+    ]
+  },
+  "daysInMonthType": {
+    "id": 30,
+    "code": "DaysInMonthType.days360",
+    "value": "30 Days"
+  },
+  "daysInYearType": {
+	"id": 360,
+	"code": "DaysInYearType.days360",
+	"value": "360 Days"
+  },
+  "isInterestRecalculationEnabled": true,
+  "interestRecalculationData": {
+    "interestRecalculationCompoundingType": {
+      "id": 2,
+      "code": "interestRecalculationCompoundingMethod.fee",
+      "value": "Fee"
+    },
+	"recalculationCompoundingFrequencyType": {
+		    "id":1,
+			"code":"interestRecalculationFrequencyType.same.as.repayment.period",
+			"value":"Same as repayment period"
+	},
+    "rescheduleStrategyType": {
+      "id": 2,
+      "code": "loanRescheduleStrategyMethod.reduce.number.of.installments",
+      "value": "Reduce number of installments"
+    },
+	"recalculationRestFrequencyType": {
+		    "id":1,
+			"code":"interestRecalculationFrequencyType.same.as.repayment.period",
+			"value":"Same as repayment period"
+	}
+  }
+  "charges": [],
+  "productOptions": [
+    {
+      "id": 1,
+      "name": "Kampala Product (with cash accounting)"
+    }
+  ],
+  "loanOfficerOptions": [
+    {
+      "id": 2,
+      "firstname": "Kampala",
+      "lastname": "LoanOfficer",
+      "displayName": "LoanOfficer, Kampala",
+      "officeId": 2,
+      "officeName": "Uganda (Kampala)",
+      "isLoanOfficer": true
+    }
+  ],
+  "loanPurposeOptions": [
+    {
+      "id": 20,
+      "name": "option.Agriculture",
+      "position": 1
+    },
+    {
+      "id": 21,
+      "name": "option.Manufacturing",
+      "position": 20
+    },
+    {
+      "id": 22,
+      "name": "option.HousingImprovement",
+      "position": 21
+    }
+  ],
+  "termFrequencyTypeOptions": [
+    {
+      "id": 0,
+      "code": "loanTermFrequency.periodFrequencyType.days",
+      "value": "Days"
+    },
+    {
+      "id": 1,
+      "code": "loanTermFrequency.periodFrequencyType.weeks",
+      "value": "Weeks"
+    },
+    {
+      "id": 2,
+      "code": "loanTermFrequency.periodFrequencyType.months",
+      "value": "Months"
+    },
+    {
+      "id": 3,
+      "code": "loanTermFrequency.periodFrequencyType.years",
+      "value": "Years"
+    }
+  ],
+  "repaymentFrequencyTypeOptions": [
+    {
+      "id": 0,
+      "code": "repaymentFrequency.periodFrequencyType.days",
+      "value": "Days"
+    },
+    {
+      "id": 1,
+      "code": "repaymentFrequency.periodFrequencyType.weeks",
+      "value": "Weeks"
+    },
+    {
+      "id": 2,
+      "code": "repaymentFrequency.periodFrequencyType.months",
+      "value": "Months"
+    }
+  ],
+  "interestRateFrequencyTypeOptions": [
+    {
+      "id": 2,
+      "code": "interestRateFrequency.periodFrequencyType.months",
+      "value": "Per month"
+    },
+    {
+      "id": 3,
+      "code": "interestRateFrequency.periodFrequencyType.years",
+      "value": "Per year"
+    }
+  ],
+  "amortizationTypeOptions": [
+    {
+      "id": 1,
+      "code": "amortizationType.equal.installments",
+      "value": "Equal installments"
+    },
+    {
+      "id": 0,
+      "code": "amortizationType.equal.principal",
+      "value": "Equal principle payments"
+    }
+  ],
+  "interestTypeOptions": [
+    {
+      "id": 1,
+      "code": "interestType.flat",
+      "value": "Flat"
+    },
+    {
+      "id": 0,
+      "code": "interestType.declining.balance",
+      "value": "Declining Balance"
+    }
+  ],
+  "interestCalculationPeriodTypeOptions": [
+    {
+      "id": 0,
+      "code": "interestCalculationPeriodType.daily",
+      "value": "Daily"
+    },
+    {
+      "id": 1,
+      "code": "interestCalculationPeriodType.same.as.repayment.period",
+      "value": "Same as repayment period"
+    }
+  ],
+  "transactionProcessingStrategyOptions": [
+    {
+      "id": 2,
+      "code": "heavensfamily-strategy",
+      "name": "Heavensfamily"
+    }
+  ],
+  "chargeOptions": [
+    {
+      "id": 1,
+      "name": "Bank Fee (per installment)",
+      "active": true,
+      "penalty": false,
+      "currency": {
+        "code": "UGX",
+        "name": "Uganda Shilling",
+        "decimalPlaces": 2,
+        "displaySymbol": "USh",
+        "nameCode": "currency.UGX",
+        "displayLabel": "Uganda Shilling (USh)"
+      },
+      "amount": 1500,
+      "chargeTimeType": {
+        "id": 2,
+        "code": "chargeTimeType.specifiedDueDate",
+        "value": "Specified due date"
+      },
+      "chargeAppliesTo": {
+        "id": 1,
+        "code": "chargeAppliesTo.loan",
+        "value": "Loan"
+      },
+      "chargeCalculationType": {
+        "id": 1,
+        "code": "chargeCalculationType.flat",
+        "value": "Flat"
+      }
+    }
+  ],
+  "loanCollateralOptions": [
+    {
+      "id": 17,
+      "name": "option.House",
+      "position": 1
+    },
+    {
+      "id": 18,
+      "name": "option.Television",
+      "position": 17
+    },
+    {
+      "id": 19,
+      "name": "option.Gold",
+      "position": 18
+    }
+  ],
+  "accountLinkingOptions":[
+  	{
+  		"id":1,
+  		"accountNo":"000000001",
+  		"clientId":1,
+  		"clientName":"pramod nuthakki",
+  		"productId":1,
+  		"productName":"pramod sav",
+  		"fieldOfficerId":0,
+  		"currency":{"code":"USD","name":"US Dollar","decimalPlaces":2,"displaySymbol":"$","nameCode":"currency.USD","displayLabel":"US Dollar ($)"}
+  	}
+  ]
+}
+					</code>
+				</div>
+			</div>
+
+			<a id="selfloancalc" name="selfloancalc" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Calculate Loan Repayment Schedule</h4>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>productId, principal, loanTermFrequency,
+								loanTermFrequencyType, numberOfRepayments, repaymentEvery,
+								repaymentFrequencyType, interestRatePerPeriod,
+								amortizationType, interestType,
+								interestCalculationPeriodType, expectedDisbursementDate,
+								transactionProcessingStrategyId</td>
+						</tr>
+					</table>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+POST https://DomainName/api/v1/self/loans?command=calculateLoanSchedule
+					</code>
+					<code class="method-request">
+POST self/loans?command=calculateLoanSchedule
+Content-Type: application/json
+Request Body:
+{
+    "dateFormat": "dd MMMM yyyy",
+    "locale": "en_GB",
+    "productId": 1,
+    "principal": "100,000.00",
+    "loanTermFrequency": 12,
+    "loanTermFrequencyType": 2,
+    "numberOfRepayments": 12,
+    "repaymentEvery": 1,
+    "repaymentFrequencyType": 2,
+    "interestRatePerPeriod": 2,
+    "amortizationType": 1,
+    "interestType": 0,
+    "interestCalculationPeriodType": 1,
+    "expectedDisbursementDate": "20 September 2011",
+    "transactionProcessingStrategyId": 2
+}
+					</code>
+					<code class="method-response">
+{
+  "currency": {
+    "code": "UGX",
+    "name": "Uganda Shilling",
+    "decimalPlaces": 2,
+    "displaySymbol": "USh",
+    "nameCode": "currency.UGX",
+    "displayLabel": "Uganda Shilling (USh)"
+  },
+  "loanTermInDays": 366,
+  "totalPrincipalDisbursed": 100000,
+  "totalPrincipalExpected": 100000,
+  "totalPrincipalPaid": 0,
+  "totalInterestCharged": 13471.52,
+  "totalFeeChargesCharged": 0,
+  "totalPenaltyChargesCharged": 0,
+  "totalWaived": 0,
+  "totalWrittenOff": 0,
+  "totalRepaymentExpected": 113471.52,
+  "totalRepayment": 0,
+  "totalOutstanding": 0,
+  "periods": [
+    {
+      "period": 0,
+      "dueDate": [
+        2011,
+        9,
+        20
+      ],
+      "principalDisbursed": 100000,
+      "principalLoanBalanceOutstanding": 100000,
+      "feeChargesDue": 0,
+      "feeChargesOutstanding": 0,
+      "totalOriginalDueForPeriod": 0,
+      "totalDueForPeriod": 0,
+      "totalOutstandingForPeriod": 0,
+      "totalOverdue": 0,
+      "totalActualCostOfLoanForPeriod": 0
+    },
+    {
+      "period": 1,
+      "fromDate": [
+        2011,
+        9,
+        20
+      ],
+      "dueDate": [
+        2011,
+        10,
+        20
+      ],
+      "daysInPeriod": 30,
+      "principalOriginalDue": 7455.96,
+      "principalDue": 7455.96,
+      "principalOutstanding": 7455.96,
+      "principalLoanBalanceOutstanding": 92544.04,
+      "interestOriginalDue": 2000,
+      "interestDue": 2000,
+      "interestOutstanding": 2000,
+      "feeChargesDue": 0,
+      "penaltyChargesDue": 0,
+      "totalOriginalDueForPeriod": 9455.96,
+      "totalDueForPeriod": 9455.96,
+      "totalPaidForPeriod": 0,
+      "totalOutstandingForPeriod": 9455.96,
+      "totalOverdue": 9455.96,
+      "totalActualCostOfLoanForPeriod": 2000
+    },
+    ...
+    ...
+    {
+      "period": 12,
+      "fromDate": [
+        2012,
+        8,
+        20
+      ],
+      "dueDate": [
+        2012,
+        9,
+        20
+      ],
+      "daysInPeriod": 31,
+      "principalOriginalDue": 9270.56,
+      "principalDue": 9270.56,
+      "principalOutstanding": 9270.56,
+      "principalLoanBalanceOutstanding": 0,
+      "interestOriginalDue": 185.4,
+      "interestDue": 185.4,
+      "interestOutstanding": 185.4,
+      "feeChargesDue": 0,
+      "penaltyChargesDue": 0,
+      "totalOriginalDueForPeriod": 9455.96,
+      "totalDueForPeriod": 9455.96,
+      "totalPaidForPeriod": 0,
+      "totalOutstandingForPeriod": 9455.96,
+      "totalOverdue": 9455.96,
+      "totalActualCostOfLoanForPeriod": 185.4
+    }
+  ]
+}
+					</code>
+				</div>
+			</div>
+			
+			
+			<a id="selfloanapply" name="selfloanapply" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Submit a new Loan Application</h4>
+					<p>Only individual loanType can be used by Self Service User </p>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>clientId, productId, principal, loanTermFrequency,
+								loanTermFrequencyType, loanType, numberOfRepayments, repaymentEvery,
+								repaymentFrequencyType, interestRatePerPeriod,
+								amortizationType, interestType,
+								interestCalculationPeriodType, transactionProcessingStrategyId,
+								expectedDisbursementDate, submittedOnDate, loanType</td>
+						</tr>
+					</table>
+					<br/>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Additional Mandatory Fields if interest recalculation is enabled for product and Rest frequency  not same as repayment period</div></td>
+						</tr>
+						<tr class=alt>
+							<td>recalculationRestFrequencyDate</td>
+						</tr>
+					</table>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Additional Mandatory Fields if interest recalculation with interest/fee compounding is enabled for product and compounding frequency not same as repayment period</div></td>
+						</tr>
+						<tr class=alt>
+							<td>recalculationCompoundingFrequencyDate</td>
+						</tr>
+					</table>
+					<br/>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Optional Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>graceOnPrincipalPayment, graceOnInterestPayment, graceOnInterestCharged, linkAccountId, allowPartialPeriodInterestCalcualtion,
+								 fixedEmiAmount, maxOutstandingLoanBalance, disbursementData, graceOnArrearsAgeing, createStandingInstructionAtDisbursement (requires linkedAccountId if set to true)
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+POST https://DomainName/api/v1/self/loans
+					</code>
+					<code class="method-request">
+POST self/loans
+Content-Type: application/json
+Request Body:
+{
+    "dateFormat": "dd MMMM yyyy",
+    "locale": "en_GB",
+    "clientId": 1,
+    "productId": 1,
+    "principal": "10,000.00",
+    "loanTermFrequency": 12,
+    "loanTermFrequencyType": 2,
+    "loanType": "individual",
+    "numberOfRepayments": 10,
+    "repaymentEvery": 1,
+    "repaymentFrequencyType": 2,
+    "interestRatePerPeriod": 10,
+    "amortizationType": 1,
+    "interestType": 0,
+    "interestCalculationPeriodType": 1,
+    "transactionProcessingStrategyId": 1,
+    "expectedDisbursementDate": "10 Jun 2013",
+    "submittedOnDate": "10 Jun 2013",
+    "linkAccountId" : "1",
+    "fixedEmiAmount":1100,
+    "maxOutstandingLoanBalance":"35000",
+    "disbursementData":[{"expectedDisbursementDate":"01 November 2013",
+    					"principal":22000,"approvedPrincipal":22000}]
+}
+					</code>
+					<code class="method-response">
+{
+    "officeId": 1,
+    "clientId": 1,
+    "loanId": 1,
+    "resourceId": 1
+}
+					</code>
+				</div>
+			</div>
 			<a id="selfloan" name="selfloan" class="old-syle-anchor">&nbsp;</a>
 			<div class="method-section">
 				<div class="method-description">
@@ -40259,6 +43314,108 @@ GET https://DomainName/api/v1/self/loans/{loanId}
       }
     }
   ]
+  }
+}
+					</code>
+				</div>
+			</div>
+
+			<a id="selfloanupdate" name="selfloanupdate" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h2>Update a Loan Application</h2>
+					<p>Loan application can only be modified when in 'Submitted and pending approval' state. Once the application is approved, the details cannot be changed using this method.</p>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">PUT https://Domain Name/api/v1/self/loans/{loanId}</code>
+					<code class="method-request">PUT self/loans/1
+Content-Type: application/json
+No Request Body:
+{
+  "locale": "en",
+  "dateFormat": "dd MMMM yyyy",
+  "productId": 1,
+  "principal": "5000",
+  "loanTermFrequency": 10,
+  "loanTermFrequencyType": 0,
+  "numberOfRepayments": 10,
+  "repaymentEvery": 1,
+  "repaymentFrequencyType": 0,
+  "interestRatePerPeriod": 2,
+  "interestType": 0,
+  "interestCalculationPeriodType": 0,
+  "amortizationType": 1,
+  "expectedDisbursementDate": "04 March 2014",
+  "transactionProcessingStrategyId": 1
+}
+					</code>
+					<code class="method-response">
+{
+  "officeId": 2,
+  "clientId": 1,
+  "loanId": 1,
+  "resourceId": 1,
+  "changes": {
+    "principal": 5000,
+    "locale": "en"
+  }
+}
+					</code>
+				</div>
+			</div>
+
+			<a id="selfloanwithdraw" name="selfloanwithdraw" class="old-syle-anchor">&nbsp;</a>
+			<div class="method-section">
+				<div class="method-description">
+					<h4>Applicant Withdraws from Loan Application</h4>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>withdrawnOnDate</td>
+						</tr>
+					</table>
+				</div>
+				<div class="method-example">
+					<code class="method-declaration">
+POST https://DomainName/api/v1/self/loans/{loanId}?command=withdrawnByApplicant
+					</code>
+					<code class="method-request">
+POST self/loans/1?command=withdrawnByApplicant
+Content-Type: application/json
+Request Body:
+{
+    "locale": "en",
+    "dateFormat": "dd MMMM yyyy",
+    "withdrawnOnDate": "20 September 2011",
+    "note": "Reason loan applicant withdrew from application."
+}
+</code>
+					<code class="method-response">
+{
+  "officeId": 1,
+  "clientId": 1,
+  "loanId": 2,
+  "resourceId": 2,
+  "changes": {
+    "status": {
+      "id": 400,
+      "code": "loanStatusType.withdrawn.by.client",
+      "value": "Withdrawn by applicant",
+      "pendingApproval": false,
+      "waitingForDisbursal": false,
+      "active": false,
+      "closedObligationsMet": false,
+      "closedWrittenOff": false,
+      "closedRescheduled": false,
+      "closed": false,
+      "overpaid": false
+    },
+    "locale": "en",
+    "dateFormat": "dd MMMM yyyy",
+    "withdrawnOnDate": "20 September 2011",
+    "closedOnDate": "20 September 2011"
   }
 }
 					</code>
@@ -40833,7 +43990,35 @@ GET https://DomainName/api/v1/self/savingsaccounts/{accountId}/charges/{savingsA
 	        </code>
 			<code class="method-response">
 {
-  "accountOptions": [
+  "fromAccountOptions": [
+	{
+		"accountId": 1,
+		"accountNo": "00000001",
+		"accountType": {
+			"id": 2,
+			"code": "accountType.savings",
+			"value": "Savings Account"
+		},
+		"clientId": 1,
+		"clientName": "ABC",
+		"officeId": 1,
+		"officeName": "HEAD OFFICE"
+	},
+	{
+		"accountId": 5,
+		"accountNo": "00000005",
+		"accountType": {
+			"id": 1,
+			"code": "accountType.loan",
+			"value": "Loan Account"
+		},
+		"clientId": 2,
+		"clientName": "XYZ",
+		"officeId": 3,
+		"officeName": "REGIONAL OFFICE"
+	}
+  ],
+ "toAccountOptions": [
 	{
 		"accountId": 1,
 		"accountNo": "00000001",
@@ -40861,6 +44046,7 @@ GET https://DomainName/api/v1/self/savingsaccounts/{accountId}/charges/{savingsA
 		"officeName": "REGIONAL OFFICE"
 	}
   ]
+
 }
 			</code>
 	    </div>
@@ -40902,6 +44088,322 @@ No Request Body:
 	    </div>
 	</div>
 
+	<a id="selfbentemplate" name="selfbentemplate" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Beneficiary Third Party Transfer Template</h2>
+	        <p>Returns Account Type enumerations. Self User is expected to know office name and account number to be able to add beneficiary.</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>/self/beneficiaries/tpt/template</div>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://DomainName/api/v1/self/beneficiaries/tpt/template
+	        </code>
+			<code class="method-response">
+    {
+        "accountTypeOptions":
+        [
+            {
+                "id": 2,
+                "code": "accountType.savings",
+                "value": "Savings Account"
+            },
+            {
+                "id": 1,
+                "code": "accountType.loan",
+                "value": "Loan Account"
+            }
+        ]
+    }
+			</code>
+	    </div>
+	</div>
+
+	<a id="selfaddtpt" name="selfaddtpt" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Add TPT Beneficiary</h2>
+	        <p>Api to add third party beneficiary linked to current user.</p>
+	        <p>Parameter Definitions</p>
+	        <p>name : Nick name for beneficiary, should be unique for an self service user</p>
+	        <p>officeName : Office Name of beneficiary(not id)</p>
+	        <p>accountNumber : Account Number of beneficiary(not id)</p>
+	        <p>transferLimit : Each transfer initiated to this account will not exceed this amount</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>/self/beneficiaries/tpt</div>
+			<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Mandatory Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name, officeName, accountNumber, accountType</td>
+						</tr>
+					</table>
+					<br/>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Optional Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>transferLimit
+							</td>
+						</tr>
+					</table>
+	    </div>
+		
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://DomainName/api/v1/self/beneficiaries/tpt
+	        </code>
+					<code class="method-request">
+POST self/beneficiaries/tpt
+Content-Type: application/json
+Request Body:
+{
+    "locale": "en_GB",
+	"name": "beneficiary nick name",
+	"officeName": "HEAD OFFICE",
+	"accountNumber": "0000001",
+	"accountType": 1,
+	"transferLimit": 1000
+    
+}
+					</code>
+					<code class="method-response">
+{
+  "resourceId": 5
+}
+			</code>
+	    </div>
+	</div>
+
+	<a id="selfgettpt" name="selfgettpt" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Get All TPT Beneficiary</h2>
+	        <p>Api to get all third party beneficiary linked to current user.</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>/self/beneficiaries/tpt</div>
+	    </div>
+		
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://DomainName/api/v1/self/beneficiaries/tpt
+	        </code>
+					<code class="method-request">
+GET self/beneficiaries/tpt
+Content-Type: application/json
+					</code>
+					<code class="method-response">
+{
+[
+  {
+    "id": 1,
+    "name": "Client2Savings",
+    "officeName": "Test Office",
+    "clientName": "FN2 LN2",
+    "accountType": {
+      "id": 2,
+      "code": "accountType.savings",
+      "value": "Savings Account"
+    },
+    "accountNumber": "000000002",
+    "transferLimit": 0
+  },
+  {
+    "id": 4,
+    "name": "Client2Loan",
+    "officeName": "Test Office",
+    "clientName": "FN2 LN2",
+    "accountType": {
+      "id": 1,
+      "code": "accountType.loan",
+      "value": "Loan Account"
+    },
+    "accountNumber": "000000002",
+    "transferLimit": 1000
+  }]
+}
+			</code>
+	    </div>
+	</div>
+
+	<a id="selfputtpt" name="selfputtpt" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Update TPT Beneficiary</h2>
+	        <p>Api to update third party beneficiary linked to current user.</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>/self/beneficiaries/tpt/{beneficiaryId}</div>
+					<br/>
+					<table class=matrixHeading>
+						<tr class="matrixHeadingBG">
+							<td><div class="fineractHeading2">Optional Fields</div></td>
+						</tr>
+						<tr class=alt>
+							<td>name, transferLimit
+							</td>
+						</tr>
+					</table>
+	    </div>
+		
+	    <div class="method-example">
+	        <code class="method-declaration">PUT https://DomainName/api/v1/self/beneficiaries/tpt/{beneficiaryId}
+	        </code>
+					<code class="method-request">
+PUT self/beneficiaries/tpt/5
+Content-Type: application/json
+Request Body:
+{
+	"name": "beneficiary nick name",
+	"transferLimit": 1000
+    
+}
+					</code>
+					<code class="method-response">
+{
+  "resourceId": 5,
+  "changes": {
+    "transferLimit": 1000,
+    "name": "Client22"
+  }
+}
+			</code>
+	    </div>
+	</div>
+
+	<a id="selfdeletetpt" name="selfdeletetpt" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Delete TPT Beneficiary</h2>
+	        <p>Api to delete third party beneficiary linked to current user.</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>/self/beneficiaries/tpt/{beneficiaryId}</div>
+	    </div>
+		
+	    <div class="method-example">
+	        <code class="method-declaration">DELETE https://DomainName/api/v1/self/beneficiaries/tpt/{beneficiaryId}
+	        </code>
+					<code class="method-request">
+DELETE self/beneficiaries/tpt/5
+Content-Type: application/json
+					</code>
+					<code class="method-response">
+{
+  "resourceId": 5
+}
+			</code>
+	    </div>
+	</div>
+
+	<a id="selftpttransfertemplate" name="selftpttransfertemplate" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Third Party Account Transfer Template</h2>
+	        <p>Returns list of loan/savings accounts that can be used for third party account transfer</p>
+	        <p>Example Requests:</p>
+	        <div class=apiClick>self/accounttransfers/template?type="tpt"</div>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">GET https://DomainName/api/v1/self/accounttransfers/template?type="tpt"
+	        </code>
+			<code class="method-response">
+{
+  "fromAccountOptions": [
+	{
+		"accountId": 1,
+		"accountNo": "00000001",
+		"accountType": {
+			"id": 2,
+			"code": "accountType.savings",
+			"value": "Savings Account"
+		},
+		"clientId": 1,
+		"clientName": "ABC",
+		"officeId": 1,
+		"officeName": "HEAD OFFICE"
+	},
+	{
+		"accountId": 5,
+		"accountNo": "00000005",
+		"accountType": {
+			"id": 1,
+			"code": "accountType.loan",
+			"value": "Loan Account"
+		},
+		"clientId": 2,
+		"clientName": "XYZ",
+		"officeId": 3,
+		"officeName": "REGIONAL OFFICE"
+	}
+  ],
+ "toAccountOptions": [
+	{
+		"accountId": 2,
+		"accountNo": "00000002",
+		"accountType": {
+			"id": 2,
+			"code": "accountType.savings",
+			"value": "Savings Account"
+		},
+		"clientId": 2,
+		"clientName": "ABC",
+		"officeId": 1,
+		"officeName": "HEAD OFFICE"
+	},
+	{
+		"accountId": 6,
+		"accountNo": "00000006",
+		"accountType": {
+			"id": 1,
+			"code": "accountType.loan",
+			"value": "Loan Account"
+		},
+		"clientId": 3,
+		"clientName": "XYZ",
+		"officeId": 4,
+		"officeName": "REGIONAL OFFICE"
+	}
+  ]
+
+}
+			</code>
+	    </div>
+	</div>
+
+	<a id="selftpttransfer" name="selftpttransfer" class="old-syle-anchor">&nbsp;</a>
+	<div class="method-section">
+	    <div class="method-description">
+	        <h2>Third Party Account Transfer</h2>
+	        <p>Ability to create new third party transfer of monetary funds from one account to another.</p>
+	    </div>
+	    <div class="method-example">
+	        <code class="method-declaration">POST https://DomainName/api/v1/self/accounttransfers?type="tpt"</code>
+	        <code class="method-request">POST self/accounttransfers?type="tpt"
+Content-Type: application/json
+No Request Body:
+{
+"fromOfficeId": 1,
+"fromClientId": 1,
+"fromAccountType": 2,
+"fromAccountId": 1,
+"toOfficeId": 1,
+"toClientId": 2,
+"toAccountType": 2,
+"toAccountId": 2,
+"dateFormat": "dd MMMM yyyy",
+"locale": "en",
+"transferDate": "01 August 2011",
+"transferAmount": "112.45",
+"transferDescription": "A description of the transfer"
+}
+	        </code>
+	        <code class="method-response">
+{
+  "savingsId": 1,
+  "resourceId": 1
+}
+	        </code>
+	    </div>
+	</div>
 			<!-- end of Customer Self Service APIs-->
         </div>
 		<!-- main-content-wrapper -->
@@ -42291,6 +45793,14 @@ No Request Body:
 				</tr>
 				<tr>
 					<td></td>
+					<td>savingsaccounts/{accountId}?command=updateWithHoldTax</td>
+					<td></td>
+					<td></td>
+					<td><a href="#savingsaccounts_withholdtaxupdate">Modify savings application withhold tax</a></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
 					<td>savingsaccounts/{accountId}?command=approve</td>
 					<td><a href="#savingsaccounts_approve">Approve a savings application</a></td>
 					<td></td>
@@ -42728,6 +46238,30 @@ No Request Body:
 					<td><a href="#recurringdepositaccounts_transaction">Retrieve Deposit account transaction</a></td>
 					<td></td>
 					<td></td>
+				</tr>
+				<tr>
+					<td><a href="#shareproducts">Share Product</a></td>
+					<td>shareproducts</td>
+					<td><a href="#shareproducts_create">Create a Share product</a></td>
+					<td><a href="#shareproducts_list">List Share products</a></td>
+					<td></td>
+					<td></td>
+				</tr>
+				
+				<tr>
+					<td></td>
+					<td>shareproducts/template</td>
+					<td></td>
+					<td><a href="#shareproducts_template">Retrieve Share Product Template</a></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>shareproducts/{productId}</td>
+					<td></td>
+					<td><a href="#shareproducts_retrieve">Retrieve a share product</a></td>
+					<td><a href="#shareproducts_update">Update a share product</a></td>
 				</tr>
 			</table>
 		</div>

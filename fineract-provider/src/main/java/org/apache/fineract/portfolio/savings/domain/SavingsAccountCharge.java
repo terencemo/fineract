@@ -225,7 +225,8 @@ public class SavingsAccountCharge extends AbstractPersistable<Long> {
 
         populateDerivedFields(transactionAmount, chargeAmount);
 
-        if (this.isWithdrawalFee()) {
+        if (this.isWithdrawalFee()
+        		|| this.isSavingsNoActivity()) {
             this.amountOutstanding = BigDecimal.ZERO;
         }
 
@@ -655,6 +656,10 @@ public class SavingsAccountCharge extends AbstractPersistable<Long> {
 
     public boolean isSavingsActivation() {
         return ChargeTimeType.fromInt(this.chargeTime).isSavingsActivation();
+    }
+    
+    public boolean isSavingsNoActivity(){
+    	return ChargeTimeType.fromInt(this.chargeTime).isSavingsNoActivityFee();
     }
 
     public boolean isSavingsClosure() {

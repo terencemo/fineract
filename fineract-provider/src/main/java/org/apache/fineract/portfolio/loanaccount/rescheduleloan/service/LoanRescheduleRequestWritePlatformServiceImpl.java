@@ -63,6 +63,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.DefaultLoanLifecycleStat
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanInstallmentCharge;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanInterestRecalcualtionAdditionalDetails;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
@@ -355,20 +356,28 @@ public class LoanRescheduleRequestWritePlatformServiceImpl implements LoanResche
                     loanCalendar = loanCalendarInstance.getCalendar();
                 }
                 FloatingRateDTO floatingRateDTO = constructFloatingRateDTO(loan);
+                Boolean isSkipRepaymentOnFirstMonth = false;
+                Integer numberOfDays = 0;
+                boolean isSkipRepaymentOnFirstMonthEnabled = this.configurationDomainService.isSkippingMeetingOnFirstDayOfMonthEnabled();
+                if(isSkipRepaymentOnFirstMonthEnabled){
+                    isSkipRepaymentOnFirstMonth = this.loanUtilService.isLoanRepaymentsSyncWithMeeting(loan.group(), loanCalendar);
+                    if(isSkipRepaymentOnFirstMonth) { numberOfDays = configurationDomainService.retreivePeroidInNumberOfDaysForSkipMeetingDate().intValue(); }
+                    
+                }
                 LoanRescheduleModel loanRescheduleModel = new DefaultLoanReschedulerFactory().reschedule(mathContext, interestMethod,
                         loanRescheduleRequest, applicationCurrency, holidayDetailDTO, restCalendarInstance, compoundingCalendarInstance,
-                        loanCalendar, floatingRateDTO);
+                        loanCalendar, floatingRateDTO, isSkipRepaymentOnFirstMonth, numberOfDays);
 
                 final Collection<LoanRescheduleModelRepaymentPeriod> periods = loanRescheduleModel.getPeriods();
                 List<LoanRepaymentScheduleInstallment> repaymentScheduleInstallments = loan.getRepaymentScheduleInstallments();
                 Collection<LoanCharge> waiveLoanCharges = new ArrayList<>();
-
+                final List<LoanInterestRecalcualtionAdditionalDetails> compoundingDetails = null;
                 for (LoanRescheduleModelRepaymentPeriod period : periods) {
 
                     if (period.isNew()) {
                         LoanRepaymentScheduleInstallment repaymentScheduleInstallment = new LoanRepaymentScheduleInstallment(loan,
                                 period.periodNumber(), period.periodFromDate(), period.periodDueDate(), period.principalDue(),
-                                period.interestDue(), BigDecimal.ZERO, BigDecimal.ZERO, false);
+                                period.interestDue(), BigDecimal.ZERO, BigDecimal.ZERO, false, compoundingDetails);
 
                         repaymentScheduleInstallments.add(repaymentScheduleInstallment);
                     }
