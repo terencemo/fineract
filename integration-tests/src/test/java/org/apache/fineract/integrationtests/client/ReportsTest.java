@@ -32,6 +32,8 @@ import org.apache.fineract.integrationtests.common.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import retrofit2.Response;
 
 /**
@@ -119,5 +121,56 @@ public class ReportsTest extends IntegrationTest {
         Response<RunReportsResponse> response = okR(
                 fineractClient().reportsRun.runReportGetData("Balance Sheet Table", Map.of("R_endDate", "2013-04-30", "R_officeId", "1")));
         assertEquals(200, response.code());
+    }
+
+    // --- SQL injection regression tests (CVE fix) ---
+    // These tests use "Client Listing" because officeId is registered in stretchy_parameter
+    // as type 'number', giving the type-validation layer a real fixture to work against.
+
+    /**
+     * A valid numeric literal for a number-typed parameter must be accepted (200). This is the non-regression
+     * counterpart to the injection tests below — it confirms the fix does not break the happy path.
+     */
+    @Test
+    void numericParamWithValidLiteralIsAccepted() {
+        Response<RunReportsResponse> response = okR(
+                fineractClient().reportsRun.runReportGetData("Client Listing", Map.of("R_officeId", "1")));
+        assertEquals(200, response.code());
+    }
+
+    /**
+     * A number-typed parameter containing an arithmetic expression used in the reported time-based blind SQL injection
+     * (e.g. {@code 1-SLEEP(5)}) must be rejected with 400 before reaching SQL execution. Prepared statements would
+     * neutralise it at the driver level, but type-literal validation must reject it earlier.
+     */
+    @ParameterizedTest(name = "Arithmetic injection in number param rejected: {0}")
+    @ValueSource(strings = { "1-SLEEP(5)", "1*SLEEP(5)", "1+SLEEP(5)", "0-pg_sleep(5)", "1-benchmark(1000000,MD5(1))" })
+    void numericParamWithArithmeticExpressionIsRejected(String maliciousValue) {
+        Response<RunReportsResponse> response = okR(
+                fineractClient().reportsRun.runReportGetData("Client Listing", Map.of("R_officeId", maliciousValue)));
+        assertEquals(400, response.code());
+    }
+
+    /**
+     * A UNION-based injection payload in a number-typed parameter must be rejected with 400. This covers the second
+     * reported vulnerability pattern.
+     */
+    @ParameterizedTest(name = "UNION injection in number param rejected: {0}")
+    @ValueSource(strings = { "1 UNION ALL SELECT 1,2,3", "1 UNION SELECT username,password FROM m_appuser", "0 UNION ALL SELECT NULL,NULL" })
+    void numericParamWithUnionInjectionIsRejected(String maliciousValue) {
+        Response<RunReportsResponse> response = okR(
+                fineractClient().reportsRun.runReportGetData("Client Listing", Map.of("R_officeId", maliciousValue)));
+        assertEquals(400, response.code());
+    }
+
+    /**
+     * A parameter name not registered in stretchy_parameter for the given report must be rejected with 400. Allowing
+     * unknown parameters would silently pass unvalidated input into the SQL template.
+     */
+    @Test
+    void unknownParamNotRegisteredForReportIsRejected() {
+        Response<RunReportsResponse> response = okR(fineractClient().reportsRun.runReportGetData("Client Listing",
+                Map.of("R_officeId", "1", "R_unregisteredParamXyz", "anything")));
+        assertEquals(400, response.code());
     }
 }

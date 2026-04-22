@@ -35,6 +35,7 @@ import org.apache.fineract.infrastructure.report.annotation.ReportService;
 import org.apache.fineract.infrastructure.report.service.AbstractReportingProcessService;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.apache.fineract.util.StreamUtil;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,8 +45,9 @@ public class DatatableReportingProcessService extends AbstractReportingProcessSe
 
     private final List<DatatableReportExportService> exportServices;
 
-    public DatatableReportingProcessService(List<DatatableReportExportService> exportServices, SqlValidator sqlValidator) {
-        super(sqlValidator);
+    public DatatableReportingProcessService(List<DatatableReportExportService> exportServices, SqlValidator sqlValidator,
+            JdbcTemplate jdbcTemplate) {
+        super(sqlValidator, jdbcTemplate);
 
         this.exportServices = exportServices;
     }
@@ -55,7 +57,7 @@ public class DatatableReportingProcessService extends AbstractReportingProcessSe
 
         DatatableExportTargetParameter exportMode = DatatableExportTargetParameter.resolverExportTarget(queryParams);
         final String parameterTypeValue = ApiParameterHelper.parameterType(queryParams) ? "parameter" : "report";
-        final Map<String, String> reportParams = getReportParams(queryParams);
+        final Map<String, String> reportParams = getReportParams(reportName, queryParams);
         ResponseHolder response = findReportExportService(exportMode) //
                 .orElseThrow(() -> new GeneralPlatformDomainRuleException("error.msg.report.export.mode.unavailable",
                         "Export mode %s unavailable".formatted(exportMode.name()))) //

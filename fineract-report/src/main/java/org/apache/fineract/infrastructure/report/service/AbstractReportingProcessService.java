@@ -22,27 +22,91 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.fineract.infrastructure.security.exception.SqlValidationException;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+@Slf4j
 public abstract class AbstractReportingProcessService implements ReportingProcessService {
 
-    private final SqlValidator sqlValidator;
+    private static final String NUMERIC_FORMAT_TYPE = "number";
+    private static final String DATE_FORMAT_TYPE = "date";
+    private static final String NUMERIC_LITERAL_PATTERN = "^-?\\d+(\\.\\d+)?$";
+    private static final String DATE_LITERAL_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
 
-    protected AbstractReportingProcessService(SqlValidator sqlValidator) {
+    private static final String PARAM_TYPE_SQL = "SELECT sp.parameter_variable, sp.parameter_FormatType"
+            + " FROM stretchy_report sr"
+            + " JOIN stretchy_report_parameter srp ON srp.report_id = sr.id"
+            + " JOIN stretchy_parameter sp ON sp.id = srp.parameter_id"
+            + " WHERE sr.report_name = ?";
+
+    private final SqlValidator sqlValidator;
+    private final JdbcTemplate jdbcTemplate;
+
+    protected AbstractReportingProcessService(SqlValidator sqlValidator, JdbcTemplate jdbcTemplate) {
         this.sqlValidator = sqlValidator;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public Map<String, String> getReportParams(final MultivaluedMap<String, String> queryParams) {
+    public Map<String, String> getReportParams(final String reportName, final MultivaluedMap<String, String> queryParams) {
+        final Map<String, String> paramFormatTypes = loadParamFormatTypes(reportName);
         final Map<String, String> reportParams = new HashMap<>();
+
         for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
             if (entry.getKey().startsWith("R_")) {
-                String pKey = "${" + entry.getKey().substring(2) + "}";
+                String paramVariable = entry.getKey().substring(2);
+                String pKey = "${" + paramVariable + "}";
                 String pValue = entry.getValue().get(0);
+
+                String formatType = paramFormatTypes.get(paramVariable);
+                if (formatType == null) {
+                    log.warn("Report '{}' received unknown parameter '{}' with no registered type — rejected", reportName,
+                            paramVariable);
+                    throw new SqlValidationException(
+                            String.format("unknown report parameter '%s' is not registered for report '%s'", paramVariable, reportName));
+                }
+
+                validateParamByType(paramVariable, pValue, formatType);
+
+                // backstop: SqlValidator catches any remaining keyword-based patterns (UNION ALL, etc.)
                 sqlValidator.validate(pValue);
+
                 reportParams.put(pKey, pValue);
             }
         }
         return reportParams;
+    }
+
+    private Map<String, String> loadParamFormatTypes(final String reportName) {
+        final Map<String, String> formatTypes = new HashMap<>();
+        final SqlRowSet rs = jdbcTemplate.queryForRowSet(PARAM_TYPE_SQL, reportName);
+        while (rs.next()) {
+            String variable = rs.getString("parameter_variable");
+            String formatType = rs.getString("parameter_FormatType");
+            if (variable != null && formatType != null) {
+                formatTypes.put(variable, formatType);
+            }
+        }
+        return formatTypes;
+    }
+
+    private void validateParamByType(final String paramName, final String value, final String formatType) {
+        if (NUMERIC_FORMAT_TYPE.equalsIgnoreCase(formatType)) {
+            if (!value.matches(NUMERIC_LITERAL_PATTERN)) {
+                log.warn("Numeric parameter '{}' failed literal validation: '{}'", paramName, value);
+                throw new SqlValidationException(
+                        String.format("parameter '%s' must be a numeric literal but received: '%s'", paramName, value));
+            }
+        } else if (DATE_FORMAT_TYPE.equalsIgnoreCase(formatType)) {
+            if (!value.matches(DATE_LITERAL_PATTERN)) {
+                log.warn("Date parameter '{}' failed literal validation: '{}'", paramName, value);
+                throw new SqlValidationException(
+                        String.format("parameter '%s' must be a date literal (yyyy-MM-dd) but received: '%s'", paramName, value));
+            }
+        }
+        // string type: no literal constraint — falls through to SqlValidator backstop
     }
 }
