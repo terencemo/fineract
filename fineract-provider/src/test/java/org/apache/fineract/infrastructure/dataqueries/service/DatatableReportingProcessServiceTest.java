@@ -34,8 +34,13 @@ import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 class DatatableReportingProcessServiceTest {
+
+    @Mock
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void exportToS3ThrowsGeneralPlatformDomainRuleException() {
@@ -45,7 +50,7 @@ class DatatableReportingProcessServiceTest {
         SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator);
+                sqlValidator, jdbcTemplate);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));
@@ -72,7 +77,7 @@ class DatatableReportingProcessServiceTest {
         SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator);
+                sqlValidator, jdbcTemplate);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));
