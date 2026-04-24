@@ -30,12 +30,17 @@ import java.util.List;
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.infrastructure.dataqueries.service.export.DatatableReportExportService;
 import org.apache.fineract.infrastructure.dataqueries.service.export.ResponseHolder;
+import org.apache.fineract.infrastructure.report.service.ReportParameterTypeResolver;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.Mock;
 
 class DatatableReportingProcessServiceTest {
+
+    @Mock
+    private ReportParameterTypeResolver reportParameterTypeResolver;
 
     @Test
     void exportToS3ThrowsGeneralPlatformDomainRuleException() {
@@ -45,7 +50,7 @@ class DatatableReportingProcessServiceTest {
         SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator);
+                sqlValidator, reportParameterTypeResolver);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));
@@ -72,7 +77,7 @@ class DatatableReportingProcessServiceTest {
         SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator);
+                sqlValidator, reportParameterTypeResolver);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));

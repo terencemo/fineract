@@ -18,17 +18,8 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import java.util.List;
 import java.util.Map;
-import org.apache.fineract.infrastructure.dataqueries.data.ReportExportType;
 
-public interface ReportingProcessService {
-
-    Response processRequest(String reportName, MultivaluedMap<String, String> queryParams);
-
-    List<ReportExportType> getAvailableExportTargets();
-
-    Map<String, String> getReportParams(String reportName, MultivaluedMap<String, String> queryParams);
+public interface ReportParameterTypeResolver {
+    Map<String, String> loadParamFormatTypes(String reportName);
 }
