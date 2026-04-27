@@ -157,11 +157,11 @@ public class ReportsTest extends IntegrationTest {
      * reported vulnerability pattern.
      */
     @ParameterizedTest(name = "UNION injection in number param rejected: {0}")
-    @ValueSource(strings = { "1 UNION ALL SELECT 1,2,3", "1 UNION SELECT username,password FROM m_appuser", "0 UNION ALL SELECT NULL,NULL" })
+    @ValueSource(strings = { "1 UNION ALL SELECT 1,2,3", "1 UNION SELECT username,password FROM m_appuser",
+            "0 UNION ALL SELECT NULL,NULL" })
     void numericParamWithUnionInjectionIsRejected(String maliciousValue) throws IOException {
         Response<RunReportsResponse> response = fineractClient().createService(RunReportsApi.class)
-		.runReportGetData("Client Listing", Map.of("R_officeId", maliciousValue))
-		.execute();
+                .runReportGetData("Client Listing", Map.of("R_officeId", maliciousValue)).execute();
         assertThat(response.code()).isEqualTo(403);
     }
 
@@ -172,8 +172,7 @@ public class ReportsTest extends IntegrationTest {
     @Test
     void unknownParamNotRegisteredForReportIsRejected() throws IOException {
         Response<RunReportsResponse> response = fineractClient().createService(RunReportsApi.class)
-		.runReportGetData("Client Listing", Map.of("R_officeId", "1", "R_unregisteredParamXyz", "anything"))
-		.execute();
+                .runReportGetData("Client Listing", Map.of("R_officeId", "1", "R_unregisteredParamXyz", "anything")).execute();
         assertThat(response.code()).isEqualTo(403);
     }
 }

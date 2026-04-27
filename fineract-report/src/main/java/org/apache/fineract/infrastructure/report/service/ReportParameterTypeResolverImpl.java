@@ -18,11 +18,11 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ReportParameterTypeResolverImpl implements ReportParameterTypeResolver {
@@ -30,11 +30,11 @@ public class ReportParameterTypeResolverImpl implements ReportParameterTypeResol
     private final JdbcTemplate jdbcTemplate;
 
     private static final String PARAM_TYPE_SQL = """
-        SELECT sp.parameter_variable, sp."parameter_FormatType" AS format_type
-        FROM stretchy_report_parameter srp
-        JOIN stretchy_parameter sp ON sp.id = srp.parameter_id
-        WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
-        """;
+            SELECT sp.parameter_variable, sp."parameter_FormatType" AS format_type
+            FROM stretchy_report_parameter srp
+            JOIN stretchy_parameter sp ON sp.id = srp.parameter_id
+            WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
+            """;
 
     public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -155,9 +154,8 @@ public class ReadReportingServiceImpl implements ReadReportingService {
                 }
                 return Long.parseLong(value);
             } catch (NumberFormatException e) {
-                throw new PlatformDataIntegrityException(
-                    "error.msg.report.invalid.numeric.parameter",
-                    "Parameter value '" + value + "' is not a valid number");
+                throw new PlatformDataIntegrityException("error.msg.report.invalid.numeric.parameter",
+                        "Parameter value '" + value + "' is not a valid number", e);
             }
         }
         if ("DATE".equalsIgnoreCase(formatType)) {
@@ -175,8 +173,8 @@ public class ReadReportingServiceImpl implements ReadReportingService {
      * <li>Server-controlled placeholders ({@code ${currentUserHierarchy}}, {@code ${currentUserId}},
      * {@code ${currentDate}}) are resolved from the authenticated session and substituted as plain strings — they are
      * not user input.</li>
-     * <li>SQL function aliases ({@code NOW()}, {@code curdate()}, {@code CURRENT_DATE}) are replaced with
-     * tenant-aware equivalents.</li>
+     * <li>SQL function aliases ({@code NOW()}, {@code curdate()}, {@code CURRENT_DATE}) are replaced with tenant-aware
+     * equivalents.</li>
      * <li>Remaining {@code ${...}} placeholders (user-supplied report parameters) are replaced with {@code ?} bind
      * variables left-to-right via a single regex pass. Values are collected in the same left-to-right order into
      * {@code paramValues} so that JDBC receives them in the correct position. User values are never concatenated into
@@ -215,7 +213,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         // Repeated occurrences of the same parameter are each replaced and each value appended separately.
         final List<Object> paramValues = new ArrayList<>();
         final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
-        final StringBuffer preparedSql = new StringBuffer();
+        final StringBuilder preparedSql = new StringBuilder();
 
         while (matcher.find()) {
             final String paramName = matcher.group(1);
@@ -591,7 +589,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 
         final List<Object> paramValues = new ArrayList<>();
         final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
-        final StringBuffer preparedSql = new StringBuffer();
+        final StringBuilder preparedSql = new StringBuilder();
 
         while (matcher.find()) {
             final String paramName = matcher.group(1);

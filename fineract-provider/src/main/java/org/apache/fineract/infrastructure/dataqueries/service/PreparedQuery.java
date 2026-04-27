@@ -25,4 +25,5 @@ import java.util.List;
  * passed to JDBC. User-supplied report parameters are never concatenated into the SQL string — they are always
  * represented as {@code ?} and bound via JDBC, eliminating SQL-injection at the execution layer.
  */
-public record PreparedQuery(String sql, List<Object> params) {}
+public record PreparedQuery(String sql, List<Object> params) {
+}

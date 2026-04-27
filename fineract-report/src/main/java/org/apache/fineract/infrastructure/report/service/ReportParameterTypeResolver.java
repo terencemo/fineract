@@ -21,5 +21,6 @@ package org.apache.fineract.infrastructure.report.service;
 import java.util.Map;
 
 public interface ReportParameterTypeResolver {
+
     Map<String, String> loadParamFormatTypes(String reportName);
 }
