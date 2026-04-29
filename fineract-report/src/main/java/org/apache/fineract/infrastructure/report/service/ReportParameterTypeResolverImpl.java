@@ -30,7 +30,7 @@ public class ReportParameterTypeResolverImpl implements ReportParameterTypeResol
     private final JdbcTemplate jdbcTemplate;
 
     private static final String PARAM_TYPE_SQL = """
-            SELECT sp.parameter_variable, sp."parameter_FormatType" AS format_type
+            SELECT sp.parameter_variable, sp.parameter_FormatType AS format_type
             FROM stretchy_report_parameter srp
             JOIN stretchy_parameter sp ON sp.id = srp.parameter_id
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
