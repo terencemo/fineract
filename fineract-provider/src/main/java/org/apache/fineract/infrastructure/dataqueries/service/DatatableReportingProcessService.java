@@ -36,7 +36,6 @@ import org.apache.fineract.infrastructure.report.service.AbstractReportingProces
 import org.apache.fineract.infrastructure.report.service.ReportParameterTypeResolver;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.apache.fineract.util.StreamUtil;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
