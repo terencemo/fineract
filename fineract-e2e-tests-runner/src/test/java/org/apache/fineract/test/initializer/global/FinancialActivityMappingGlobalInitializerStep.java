@@ -19,6 +19,8 @@
 package org.apache.fineract.test.initializer.global;
 
 import static org.apache.fineract.client.feign.util.FeignCalls.executeVoid;
+import static org.apache.fineract.test.data.accounttype.DefaultAccountType.AA_SUSPENSE_BALANCE;
+import static org.apache.fineract.test.data.accounttype.DefaultAccountType.ASSET_TRANSFER;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.client.feign.FineractFeignClient;
 import org.apache.fineract.client.feign.util.CallFailedRuntimeException;
 import org.apache.fineract.client.models.PostFinancialActivityAccountsRequest;
+import org.apache.fineract.test.data.accounttype.AccountTypeResolver;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -34,18 +37,27 @@ import org.springframework.stereotype.Component;
 public class FinancialActivityMappingGlobalInitializerStep implements FineractGlobalInitializerStep {
 
     public static final Long FINANCIAL_ACTIVITY_ID_ASSET_TRANSFER = 100L;
-    public static final Long GL_ACCOUNT_ID_ASSET_TRANSFER = 21L;
+    public static final Long FINANCIAL_ACTIVITY_ID_LIABILITY_TRANSFER = 200L;
 
     private final FineractFeignClient fineractClient;
+    private final AccountTypeResolver accountTypeResolver;
 
     @Override
     public void initialize() {
-        PostFinancialActivityAccountsRequest request = new PostFinancialActivityAccountsRequest()
-                .financialActivityId(FINANCIAL_ACTIVITY_ID_ASSET_TRANSFER).glAccountId(GL_ACCOUNT_ID_ASSET_TRANSFER);
+        Long assetTransferGlAccountId = accountTypeResolver.resolve(ASSET_TRANSFER);
+        PostFinancialActivityAccountsRequest assetTransferRequest = new PostFinancialActivityAccountsRequest()
+                .financialActivityId(FINANCIAL_ACTIVITY_ID_ASSET_TRANSFER).glAccountId(assetTransferGlAccountId);
+
+        Long liabilityTransferGlAccountId = accountTypeResolver.resolve(AA_SUSPENSE_BALANCE);
+        PostFinancialActivityAccountsRequest requestLiabilityTransfer = new PostFinancialActivityAccountsRequest()
+                .financialActivityId(FINANCIAL_ACTIVITY_ID_LIABILITY_TRANSFER).glAccountId(liabilityTransferGlAccountId);
 
         try {
-            executeVoid(() -> fineractClient.mappingFinancialActivitiesToAccounts().createGLAccountMappingFinancialActivityAccount(request,
-                    Map.of()));
+            executeVoid(() -> fineractClient.mappingFinancialActivitiesToAccounts()
+                    .createGLAccountMappingFinancialActivityAccount(assetTransferRequest, Map.of()));
+
+            executeVoid(() -> fineractClient.mappingFinancialActivitiesToAccounts()
+                    .createGLAccountMappingFinancialActivityAccount(requestLiabilityTransfer, Map.of()));
             log.debug("Financial activity mapping created successfully");
         } catch (CallFailedRuntimeException e) {
             if (e.getStatus() == 403 && e.getDeveloperMessage() != null && e.getDeveloperMessage().contains("already exists")) {

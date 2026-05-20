@@ -39,18 +39,22 @@ import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidati
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.infrastructure.core.service.ExternalIdFactory;
+import org.apache.fineract.infrastructure.core.service.MathUtil;
 import org.apache.fineract.infrastructure.event.business.domain.workingcapitalloan.transaction.WorkingCapitalLoanCreditBalanceRefundTransactionBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.workingcapitalloan.transaction.WorkingCapitalLoanDisbursalTransactionBusinessEvent;
+import org.apache.fineract.infrastructure.event.business.domain.workingcapitalloan.transaction.WorkingCapitalLoanDiscountFeeTransactionBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.workingcapitalloan.transaction.WorkingCapitalLoanRepaymentTransactionBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.domain.workingcapitalloan.transaction.WorkingCapitalLoanUndoDisbursalTransactionBusinessEvent;
 import org.apache.fineract.infrastructure.event.business.service.BusinessEventNotifierService;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRelationTypeEnum;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 import org.apache.fineract.portfolio.paymentdetail.service.PaymentDetailWritePlatformService;
 import org.apache.fineract.portfolio.workingcapitalloan.WorkingCapitalLoanConstants;
+import org.apache.fineract.portfolio.workingcapitalloan.accounting.WorkingCapitalLoanAccountingProcessor;
 import org.apache.fineract.portfolio.workingcapitalloan.data.RepaymentAmortizationData;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoan;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanBalance;
@@ -58,17 +62,19 @@ import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoa
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanEvent;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanNote;
+import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanPeriodPaymentRateChange;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanTransaction;
 import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanTransactionAllocation;
+import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanTransactionRelation;
+import org.apache.fineract.portfolio.workingcapitalloan.domain.WorkingCapitalLoanTransactionRelationRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.exception.WorkingCapitalLoanNotFoundException;
 import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanBalanceRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanNoteRepository;
+import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanPeriodPaymentRateChangeRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanTransactionAllocationRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.repository.WorkingCapitalLoanTransactionRepository;
 import org.apache.fineract.portfolio.workingcapitalloan.serialization.WorkingCapitalLoanDataValidator;
-import org.apache.fineract.portfolio.workingcapitalloanproduct.domain.WorkingCapitalLoanProduct;
-import org.apache.fineract.portfolio.workingcapitalloanproduct.domain.WorkingCapitalLoanProductRelatedDetail;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +99,9 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
     private final InternalWorkingCapitalLoanPaymentService internalWorkingCapitalLoanPaymentService;
     private final CodeValueRepository codeValueRepository;
     private final BusinessEventNotifierService businessEventNotifierService;
+    private final WorkingCapitalLoanAccountingProcessor accountingProcessor;
+    private final WorkingCapitalLoanTransactionRelationRepository relationRepository;
+    private final WorkingCapitalLoanPeriodPaymentRateChangeRepository rateChangeRepository;
 
     @Override
     public CommandProcessingResult approveApplication(final Long loanId, final JsonCommand command) {
@@ -133,9 +142,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         if (command.parameterExists(WorkingCapitalLoanConstants.discountAmountParamName)) {
             final BigDecimal discount = this.fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.discountAmountParamName,
                     command.parsedJson(), new HashSet<>());
-            if (discount != null) {
-                loan.getLoanProductRelatedDetails().setDiscount(discount);
-            }
+            loan.getLoanProductRelatedDetails().setDiscountApproved(discount);
         }
 
         // Keep first tranche expected amount aligned with approved principal (submit stores proposed principal only).
@@ -183,9 +190,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         // Note: if discount was customized at submission time, it resets to product default,
         // not the submission-time value, because we don't store a pre-approval snapshot.
         // The loan is back in SUBMITTED state and can be modified.
-        final WorkingCapitalLoanProduct product = loan.getLoanProduct();
-        final WorkingCapitalLoanProductRelatedDetail productDetail = product.getRelatedDetail();
-        loan.getLoanProductRelatedDetails().setDiscount(productDetail.getDiscount());
+        loan.getLoanProductRelatedDetails().setDiscountApproved(null);
 
         this.loanRepository.saveAndFlush(loan);
 
@@ -283,8 +288,10 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
             loan.getDisbursementDetails().getFirst().setDisbursedBy(currentUser);
         }
 
+        // Discount amount (optional, can only be reduced per requirement)
+        BigDecimal discount = null;
         if (command.parameterExists(WorkingCapitalLoanConstants.discountAmountParamName)) {
-            final BigDecimal discount = this.fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.discountAmountParamName,
+            discount = this.fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.discountAmountParamName,
                     command.parsedJson(), new HashSet<>());
             if (discount != null) {
                 loan.getLoanProductRelatedDetails().setDiscount(discount);
@@ -304,26 +311,31 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 .forPrincipalAllocation(disbursementTransaction, transactionAmount);
         this.allocationRepository.saveAndFlush(allocation);
 
+        Long discountTransactionId = null;
+        ExternalId discountTxnExternalId = null;
+
+        if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+            WorkingCapitalLoanTransaction discountTransaction = createAndPersistDiscountFeeTransaction(loan, disbursementTransaction, null,
+                    discount, actualDisbursementDate, null, null);
+            discountTransactionId = discountTransaction.getId();
+            discountTxnExternalId = discountTransaction.getExternalId();
+            changes.put(WorkingCapitalLoanConstants.discountAmountParamName, discount);
+        }
         updateBalanceOnDisburse(loan, transactionAmount);
         amortizationScheduleWriteService.generateAndSaveAmortizationScheduleOnDisbursement(loan, transactionAmount, actualDisbursementDate);
 
         this.loanRepository.saveAndFlush(loan);
-
-        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
-        if (StringUtils.isNotBlank(noteText)) {
-            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
-        }
         changes.put("status", loan.getLoanStatus());
-        createNote(noteText, loan);
+        handleNote(loan, command, changes);
 
         log.debug("Working capital loan {} disbursed by user {}", loanId, currentUser != null ? currentUser.getId() : "system");
 
         return new CommandProcessingResultBuilder() //
                 .withCommandId(command.commandId()) //
-                .withEntityId(loanId) //
-                .withEntityExternalId(loan.getExternalId()) //
-                .withSubEntityId(disbursementTransaction.getId()) //
-                .withSubEntityExternalId(disbursementTransaction.getExternalId()) //
+                .withLoanId(loanId).withLoanExternalId(loan.getExternalId()).withEntityId(disbursementTransaction.getId()) //
+                .withEntityExternalId(disbursementTransaction.getExternalId()) //
+                .withSubEntityId(discountTransactionId) //
+                .withSubEntityExternalId(discountTxnExternalId) //
                 .withOfficeId(loan.getOfficeId()) //
                 .withClientId(loan.getClientId()) //
                 .withLoanId(loanId) //
@@ -359,6 +371,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 }
             }
         }
+        loan.getLoanProductRelatedDetails().setDiscount(null);
         amortizationScheduleWriteService.regenerateAmortizationScheduleOnUndoDisbursal(loan);
 
         this.loanRepository.saveAndFlush(loan);
@@ -367,11 +380,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         changes.put("status", loan.getLoanStatus());
         changes.put(WorkingCapitalLoanConstants.actualDisbursementDateParamName, null);
         changes.put("actualAmount", null);
-        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
-        if (StringUtils.isNotBlank(noteText)) {
-            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
-        }
-        createNote(noteText, loan);
+        handleNote(loan, command, changes);
 
         log.debug("Working capital loan {} disbursal undone", loanId);
 
@@ -384,38 +393,106 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 .build();
     }
 
+    private void saveNewTransactionRelation(WorkingCapitalLoanTransaction fromTxn, WorkingCapitalLoanTransaction toTxn,
+            LoanTransactionRelationTypeEnum relationType) {
+        WorkingCapitalLoanTransactionRelation relation = new WorkingCapitalLoanTransactionRelation(fromTxn, toTxn, relationType);
+        fromTxn.getLoanTransactionRelations().add(relation);
+        transactionRepository.saveAndFlush(fromTxn);
+    }
+
+    private WorkingCapitalLoanTransaction createAndPersistDiscountFeeTransaction(final WorkingCapitalLoan loan,
+            final WorkingCapitalLoanTransaction disbursementTransaction, ExternalId txnExternalId, BigDecimal amount,
+            LocalDate transactionDate, CodeValue classification, PaymentDetail paymentDetail) {
+        if (amount != null) {
+            loan.getLoanProductRelatedDetails().setDiscount(amount);
+        }
+
+        WorkingCapitalLoanTransaction discountTransaction = WorkingCapitalLoanTransaction.discountFee(loan, txnExternalId, amount,
+                transactionDate, classification, paymentDetail);
+
+        saveNewTransactionRelation(discountTransaction, disbursementTransaction, LoanTransactionRelationTypeEnum.RELATED);
+
+        final WorkingCapitalLoanTransactionAllocation allocation = WorkingCapitalLoanTransactionAllocation
+                .forDisbursementDiscount(discountTransaction, amount);
+        allocationRepository.saveAndFlush(allocation);
+
+        amortizationScheduleWriteService.generateAndSaveAmortizationScheduleOnDisbursement(loan,
+                disbursementTransaction.getTransactionAmount(), disbursementTransaction.getTransactionDate());
+
+        businessEventNotifierService
+                .notifyPostBusinessEvent(new WorkingCapitalLoanDiscountFeeTransactionBusinessEvent(discountTransaction));
+        return discountTransaction;
+    }
+
     @Override
-    public CommandProcessingResult updateDiscount(final Long loanId, final JsonCommand command) {
-        final WorkingCapitalLoan loan = this.loanRepository.findById(loanId)
-                .orElseThrow(() -> new WorkingCapitalLoanNotFoundException(loanId));
-        this.validator.validateUpdateDiscount(command.json(), loan);
+    public CommandProcessingResult makeDiscountFee(Long loanId, JsonCommand command) {
+        final WorkingCapitalLoan loan = loanRepository.findById(loanId).orElseThrow(() -> new WorkingCapitalLoanNotFoundException(loanId));
+
+        final Long relatedDisbursementTransactionId = fromApiJsonHelper
+                .extractLongNamed(WorkingCapitalLoanConstants.relatedResourceIdParamName, command.parsedJson());
+
+        BigDecimal amount = fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.transactionAmountParamName,
+                command.parsedJson(), new HashSet<>());
+        if (amount == null) {
+            amount = loan.getLoanProductRelatedDetails().getDiscount();
+        }
+        final String note = this.fromApiJsonHelper.extractStringNamed(WorkingCapitalLoanConstants.noteParamName, command.parsedJson());
+
+        validator.validateDiscountTransaction(loan, command.json(), amount, note);
 
         if (loan.getLoanStatus() != LoanStatus.ACTIVE) {
             throw new PlatformApiDataValidationException("validation.msg.wc.loan.transition.not.allowed",
                     "Add discount is allowed only for disbursed (active) loans", "loanStatus");
         }
 
-        ensureDiscountNotAlreadySetBeforeDisbursement(loan);
-
-        final BigDecimal discount = this.fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.discountAmountParamName,
-                command.parsedJson(), new HashSet<>());
-        if (discount != null) {
-            loan.getLoanProductRelatedDetails().setDiscount(discount);
+        if (relatedDisbursementTransactionId == null) {
+            throw new PlatformApiDataValidationException("validation.msg.wc.loan.related.resource.id.required",
+                    "Related disbursement transaction ID is required for discount fee transaction", "relatedResourceId");
         }
-        updateBalanceForDiscountChange(loan);
 
-        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
-        createNote(noteText, loan);
-        this.loanRepository.saveAndFlush(loan);
+        final WorkingCapitalLoanTransaction relatedDisbursementTransaction = transactionRepository
+                .findById(relatedDisbursementTransactionId)
+                .orElseThrow(() -> new PlatformApiDataValidationException("validation.msg.wc.loan.disbursement.transaction.not.found",
+                        "Disbursement transaction not found", "disbursementTransaction"));
+
+        boolean alreadyHasDiscount = relationRepository.findByToTransactionAndFromTransactionReversedAndFromTransactionTransactionType(
+                relatedDisbursementTransaction, false, LoanTransactionType.DISCOUNT_FEE).isPresent();
+        if (alreadyHasDiscount) {
+            throw new PlatformApiDataValidationException("validation.msg.wc.loan.discount.already.set.before.disbursement",
+                    "Discount was already set before disbursement and cannot be added again",
+                    WorkingCapitalLoanConstants.discountAmountParamName);
+        }
+
+        final Long classificationId = fromApiJsonHelper.extractLongNamed(WorkingCapitalLoanConstants.classificationIdParamName,
+                command.parsedJson());
+        final CodeValue classification = classificationId != null ? Optional
+                .ofNullable(codeValueRepository.findByCodeNameAndId(WorkingCapitalLoanConstants.DISBURSEMENT_CLASSIFICATION_CODE_NAME,
+                        classificationId))
+                .orElseThrow(() -> new PlatformApiDataValidationException("validation.msg.wc.loan.classification.not.found",
+                        "Classification with ID " + classificationId + " not found", "classificationId"))
+                : null;
 
         final Map<String, Object> changes = new LinkedHashMap<>();
-        changes.put(WorkingCapitalLoanConstants.discountAmountParamName, discount);
-        if (StringUtils.isNotBlank(noteText)) {
-            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
-        }
 
-        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(loanId)
-                .withEntityExternalId(loan.getExternalId()).withOfficeId(loan.getOfficeId()).withClientId(loan.getClientId())
+        final ExternalId txnExternalId = externalIdFactory.createFromCommand(command, WorkingCapitalLoanConstants.externalIdParameterName);
+        final PaymentDetail paymentDetail = createAndPersistPaymentDetailFromCommand(command, changes);
+        handleNote(loan, command, changes);
+
+        changes.put(WorkingCapitalLoanConstants.transactionAmountParamName, amount);
+        changes.put(WorkingCapitalLoanConstants.relatedResourceIdParamName, relatedDisbursementTransactionId);
+        changes.put(WorkingCapitalLoanConstants.transactionDateParamName, relatedDisbursementTransaction.getTransactionDate());
+        changes.put(WorkingCapitalLoanConstants.transactionTypeParamName, LoanTransactionType.DISCOUNT_FEE);
+        changes.put(WorkingCapitalLoanConstants.externalIdParameterName, txnExternalId);
+        changes.put(WorkingCapitalLoanConstants.classificationIdParamName, classificationId);
+
+        WorkingCapitalLoanTransaction discountTransaction = createAndPersistDiscountFeeTransaction(loan, relatedDisbursementTransaction,
+                txnExternalId, amount, relatedDisbursementTransaction.getTransactionDate(), classification, paymentDetail);
+
+        updateBalanceForDiscountChange(loan);
+        loanRepository.saveAndFlush(loan);
+
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(discountTransaction.getId())
+                .withEntityExternalId(discountTransaction.getExternalId()).withOfficeId(loan.getOfficeId()).withClientId(loan.getClientId())
                 .withLoanId(loanId).with(changes).build();
     }
 
@@ -423,12 +500,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
     public CommandProcessingResult makeRepayment(final Long loanId, final JsonCommand command) {
         final WorkingCapitalLoan loan = this.loanRepository.findById(loanId)
                 .orElseThrow(() -> new WorkingCapitalLoanNotFoundException(loanId));
-        this.validator.validateRepayment(command.json(), loan);
-
-        if (loan.getLoanStatus() != LoanStatus.ACTIVE && loan.getLoanStatus() != LoanStatus.OVERPAID) {
-            throw new PlatformApiDataValidationException("validation.msg.wc.loan.transition.not.allowed",
-                    "Repayment is allowed only for active/overpaid loans", "loanStatus");
-        }
+        this.validator.validateRepayment(command.json(), loan, LoanTransactionType.REPAYMENT);
 
         final LocalDate transactionDate = command.localDateValueOfParameterNamed(WorkingCapitalLoanConstants.transactionDateParamName);
         final BigDecimal transactionAmount = this.fromApiJsonHelper
@@ -450,21 +522,47 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 paymentDetail, transactionDate, classification, txnExternalId);
         this.transactionRepository.saveAndFlush(repaymentTransaction);
 
-        final WorkingCapitalLoanTransactionAllocation allocation = WorkingCapitalLoanTransactionAllocation
-                .forPrincipalAllocation(repaymentTransaction, transactionAmount);
-        this.allocationRepository.saveAndFlush(allocation);
-
         final WorkingCapitalLoanBalance currentBalance = this.balanceRepository.findByWcLoan_Id(loan.getId())
                 .orElseGet(() -> WorkingCapitalLoanBalance.createFor(loan));
-        final BigDecimal outstandingBeforeRepayment = currentBalance.getPrincipalOutstanding() != null
-                ? currentBalance.getPrincipalOutstanding()
-                : BigDecimal.ZERO;
+        final BigDecimal outstandingBeforeRepayment = MathUtil.nullToZero(currentBalance.getPrincipalOutstanding());
         final BigDecimal amountAppliedToOutstanding = transactionAmount.min(outstandingBeforeRepayment);
+
+        final WorkingCapitalLoanTransactionAllocation allocation = WorkingCapitalLoanTransactionAllocation
+                .forPrincipalAllocation(repaymentTransaction, amountAppliedToOutstanding);
+        this.allocationRepository.saveAndFlush(allocation);
+
         final RepaymentAmortizationData amortizationData = amortizationScheduleWriteService.applyRepayment(loan, transactionDate,
                 amountAppliedToOutstanding);
         updateBalanceOnRepayment(loan, transactionAmount, amortizationData);
         internalWorkingCapitalLoanPaymentService.makePayment(loanId, amountAppliedToOutstanding, transactionDate);
 
+        handleStateChanges(loan, transactionDate);
+        changes.put("status", loan.getLoanStatus());
+
+        handleNote(loan, command, changes);
+
+        if (loan.getLoanProduct().getAccountingRule().isCashBased()) {
+            accountingProcessor.postJournalEntriesForRepayment(loan, repaymentTransaction, allocation, false);
+        }
+
+        businessEventNotifierService
+                .notifyPostBusinessEvent(new WorkingCapitalLoanRepaymentTransactionBusinessEvent(repaymentTransaction, loan.getId()));
+
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(loanId)
+                .withEntityExternalId(loan.getExternalId()).withSubEntityId(repaymentTransaction.getId())
+                .withSubEntityExternalId(repaymentTransaction.getExternalId()).withOfficeId(loan.getOfficeId())
+                .withClientId(loan.getClientId()).withLoanId(loanId).with(changes).build();
+    }
+
+    private void handleNote(WorkingCapitalLoan loan, JsonCommand command, Map<String, Object> changes) {
+        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
+        if (StringUtils.isNotBlank(noteText)) {
+            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
+        }
+        createNote(noteText, loan);
+    }
+
+    private void handleStateChanges(WorkingCapitalLoan loan, LocalDate transactionDate) {
         if (loan.getBalance() != null) {
             final BigDecimal overpaymentAmount = loan.getBalance().getOverpaymentAmount() != null ? loan.getBalance().getOverpaymentAmount()
                     : BigDecimal.ZERO;
@@ -479,22 +577,6 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 loan.setMaturedOnDate(transactionDate);
             }
         }
-
-        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
-        if (StringUtils.isNotBlank(noteText)) {
-            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
-        }
-        changes.put("status", loan.getLoanStatus());
-        createNote(noteText, loan);
-
-        this.loanRepository.saveAndFlush(loan);
-        businessEventNotifierService
-                .notifyPostBusinessEvent(new WorkingCapitalLoanRepaymentTransactionBusinessEvent(repaymentTransaction, loan.getId()));
-
-        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(loanId)
-                .withEntityExternalId(loan.getExternalId()).withSubEntityId(repaymentTransaction.getId())
-                .withSubEntityExternalId(repaymentTransaction.getExternalId()).withOfficeId(loan.getOfficeId())
-                .withClientId(loan.getClientId()).withLoanId(loanId).with(changes).build();
     }
 
     @Override
@@ -560,12 +642,8 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
             }
         }
 
-        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
-        if (StringUtils.isNotBlank(noteText)) {
-            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
-        }
         changes.put("status", loan.getLoanStatus());
-        createNote(noteText, loan);
+        handleNote(loan, command, changes);
 
         this.loanRepository.saveAndFlush(loan);
         businessEventNotifierService.notifyPostBusinessEvent(
@@ -575,6 +653,102 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
                 .withEntityExternalId(loan.getExternalId()).withSubEntityId(creditBalanceRefundTransaction.getId())
                 .withSubEntityExternalId(creditBalanceRefundTransaction.getExternalId()).withOfficeId(loan.getOfficeId())
                 .withClientId(loan.getClientId()).withLoanId(loanId).with(changes).build();
+    }
+
+    @Override
+    @Transactional
+    public CommandProcessingResult updatePeriodPaymentRate(final Long loanId, final JsonCommand command) {
+        final WorkingCapitalLoan loan = this.loanRepository.findById(loanId)
+                .orElseThrow(() -> new WorkingCapitalLoanNotFoundException(loanId));
+        this.validator.validateUpdatePeriodPaymentRate(command.json(), loan);
+
+        final BigDecimal newRate = this.fromApiJsonHelper.extractBigDecimalNamed(WorkingCapitalLoanConstants.periodPaymentRateParamName,
+                command.parsedJson(), new HashSet<>());
+        final BigDecimal previousRate = loan.getLoanProductRelatedDetails().getPeriodPaymentRate();
+
+        final LocalDate businessDate = DateUtils.getBusinessLocalDate();
+
+        final List<WorkingCapitalLoanPeriodPaymentRateChange> activeChanges = this.rateChangeRepository
+                .findByWorkingCapitalLoanIdAndReversedFalse(loanId);
+        for (final WorkingCapitalLoanPeriodPaymentRateChange active : activeChanges) {
+            active.reverse(businessDate);
+        }
+        if (!activeChanges.isEmpty()) {
+            this.rateChangeRepository.saveAll(activeChanges);
+        }
+
+        loan.getLoanProductRelatedDetails().setPeriodPaymentRate(newRate);
+
+        final WorkingCapitalLoanPeriodPaymentRateChange rateChange = WorkingCapitalLoanPeriodPaymentRateChange.create(loan, businessDate,
+                previousRate, newRate);
+        this.rateChangeRepository.save(rateChange);
+
+        this.amortizationScheduleWriteService.regenerateAmortizationScheduleOnRateChange(loan, newRate);
+
+        final String noteText = command.stringValueOfParameterNamed(WorkingCapitalLoanConstants.noteParamName);
+        createNote(noteText, loan);
+        this.loanRepository.saveAndFlush(loan);
+
+        final Map<String, Object> changes = new LinkedHashMap<>();
+        changes.put(WorkingCapitalLoanConstants.periodPaymentRateParamName, newRate);
+        changes.put(WorkingCapitalLoanConstants.previousPeriodPaymentRateParamName, previousRate);
+        if (StringUtils.isNotBlank(noteText)) {
+            changes.put(WorkingCapitalLoanConstants.noteParamName, noteText);
+        }
+
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(loanId)
+                .withEntityExternalId(loan.getExternalId()).withOfficeId(loan.getOfficeId()).withClientId(loan.getClientId())
+                .withLoanId(loanId).with(changes).build();
+    }
+
+    @Override
+    public CommandProcessingResult makeGoodwillCredit(Long loanId, JsonCommand command) {
+        final WorkingCapitalLoan loan = this.loanRepository.findById(loanId)
+                .orElseThrow(() -> new WorkingCapitalLoanNotFoundException(loanId));
+        this.validator.validateRepayment(command.json(), loan, LoanTransactionType.GOODWILL_CREDIT);
+
+        final LocalDate transactionDate = command.localDateValueOfParameterNamed(WorkingCapitalLoanConstants.transactionDateParamName);
+        final BigDecimal transactionAmount = this.fromApiJsonHelper
+                .extractBigDecimalNamed(WorkingCapitalLoanConstants.transactionAmountParamName, command.parsedJson(), new HashSet<>());
+        final Map<String, Object> changes = new LinkedHashMap<>();
+        changes.put(WorkingCapitalLoanConstants.transactionDateParamName, transactionDate);
+        changes.put(WorkingCapitalLoanConstants.transactionAmountParamName, transactionAmount);
+        final PaymentDetail paymentDetail = createAndPersistPaymentDetailFromCommand(command, changes);
+
+        final Long classificationId = command.longValueOfParameterNamed(WorkingCapitalLoanConstants.classificationIdParamName);
+        final CodeValue classification = classificationId != null
+                ? codeValueRepository.findByCodeNameAndId(WorkingCapitalLoanConstants.REPAYMENT_CLASSIFICATION_CODE_NAME, classificationId)
+                : null;
+        changes.put(WorkingCapitalLoanConstants.classificationIdParamName, classificationId);
+
+        final ExternalId txnExternalId = this.externalIdFactory.createFromCommand(command,
+                WorkingCapitalLoanConstants.externalIdParameterName);
+        final WorkingCapitalLoanTransaction repaymentTransaction = WorkingCapitalLoanTransaction.goodwillCredit(loan, transactionAmount,
+                paymentDetail, transactionDate, classification, txnExternalId);
+        this.transactionRepository.saveAndFlush(repaymentTransaction);
+        final WorkingCapitalLoanBalance currentBalance = this.balanceRepository.findByWcLoan_Id(loan.getId())
+                .orElseGet(() -> WorkingCapitalLoanBalance.createFor(loan));
+        final BigDecimal outstandingBeforeRepayment = MathUtil.nullToZero(currentBalance.getPrincipalOutstanding());
+        final BigDecimal amountAppliedToOutstanding = transactionAmount.min(outstandingBeforeRepayment);
+
+        final WorkingCapitalLoanTransactionAllocation allocation = WorkingCapitalLoanTransactionAllocation
+                .forPrincipalAllocation(repaymentTransaction, amountAppliedToOutstanding);
+        this.allocationRepository.saveAndFlush(allocation);
+
+        final RepaymentAmortizationData amortizationData = amortizationScheduleWriteService.applyRepayment(loan, transactionDate,
+                amountAppliedToOutstanding);
+        updateBalanceOnRepayment(loan, transactionAmount, amortizationData);
+        internalWorkingCapitalLoanPaymentService.makePayment(loanId, amountAppliedToOutstanding, transactionDate);
+
+        handleStateChanges(loan, transactionDate);
+        changes.put("status", loan.getLoanStatus());
+
+        handleNote(loan, command, changes);
+
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withLoanId(loanId)
+                .withLoanExternalId(loan.getExternalId()).withEntityId(repaymentTransaction.getId())
+                .withEntityExternalId(repaymentTransaction.getExternalId()).withOfficeId(loan.getOfficeId())
+                .withClientId(loan.getClientId()).with(changes).build();
     }
 
     private PaymentDetail createAndPersistPaymentDetailFromCommand(final JsonCommand command, final Map<String, Object> changes) {
@@ -656,6 +830,14 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         this.balanceRepository.saveAndFlush(balance);
     }
 
+    private void reverseTransaction(final WorkingCapitalLoanTransaction txn) {
+        txn.setReversed(true);
+        txn.setReversedOnDate(DateUtils.getBusinessLocalDate());
+        txn.setReversalExternalId(ExternalId.generate());
+        this.transactionRepository.save(txn);
+        this.transactionRepository.flush();
+    }
+
     private WorkingCapitalLoanTransaction reverseDisbursementTransactionAndResetBalance(final WorkingCapitalLoan loan) {
         final List<WorkingCapitalLoanTransaction> transactions = this.transactionRepository
                 .findByWcLoan_IdOrderByTransactionDateAscIdAsc(loan.getId());
@@ -669,13 +851,13 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
             throw new PlatformApiDataValidationException("validation.msg.wc.loan.undo.disbursal.not.allowed",
                     "Multiple active disbursement transactions found while only single disbursement is supported", "loanId");
         }
-
         final WorkingCapitalLoanTransaction txn = activeDisbursements.getFirst();
-        txn.setReversed(true);
-        txn.setReversedOnDate(DateUtils.getBusinessLocalDate());
-        txn.setReversalExternalId(ExternalId.generate());
-        this.transactionRepository.save(txn);
-        this.transactionRepository.flush();
+        reverseTransaction(txn);
+        loan.getTransactions().stream()
+                .filter(t -> t.getTransactionType() == LoanTransactionType.DISCOUNT_FEE && !t.isReversed()
+                        && t.getLoanTransactionRelations().stream().anyMatch(r -> r.getToTransaction() != null
+                                && r.getToTransaction().getId() != null && r.getToTransaction().getId().equals(txn.getId())))
+                .forEach(this::reverseTransaction);
 
         final Optional<WorkingCapitalLoanBalance> balanceOpt = this.balanceRepository.findByWcLoan_Id(loan.getId());
         balanceOpt.ifPresent(b -> {
@@ -698,7 +880,7 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
             if (txn.isReversed()) {
                 continue;
             }
-            if (txn.getTypeOf() != LoanTransactionType.DISBURSEMENT) {
+            if (txn.getTypeOf() != LoanTransactionType.DISBURSEMENT && txn.getTypeOf() != LoanTransactionType.DISCOUNT_FEE) {
                 throw new PlatformApiDataValidationException("validation.msg.wc.loan.undo.disbursal.not.allowed",
                         "Undo disbursal is not allowed when there are other monetary transactions on the loan", "loanId");
             }
@@ -712,18 +894,4 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         }
     }
 
-    private void ensureDiscountNotAlreadySetBeforeDisbursement(final WorkingCapitalLoan loan) {
-        final BigDecimal productDefaultDiscount = loan.getLoanProduct() != null && loan.getLoanProduct().getRelatedDetail() != null
-                ? loan.getLoanProduct().getRelatedDetail().getDiscount()
-                : null;
-        final BigDecimal loanDiscount = loan.getLoanProductRelatedDetails() != null ? loan.getLoanProductRelatedDetails().getDiscount()
-                : null;
-        final boolean equalByValue = productDefaultDiscount == null ? loanDiscount == null
-                : loanDiscount != null && productDefaultDiscount.compareTo(loanDiscount) == 0;
-        if (!equalByValue) {
-            throw new PlatformApiDataValidationException("validation.msg.wc.loan.discount.already.set.before.disbursement",
-                    "Discount was already set before disbursement and cannot be added again",
-                    WorkingCapitalLoanConstants.discountAmountParamName);
-        }
-    }
 }

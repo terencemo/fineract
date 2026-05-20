@@ -18,7 +18,6 @@
  */
 package org.apache.fineract.test.helper;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -29,27 +28,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.client.models.BatchResponse;
 import org.apache.fineract.client.models.Header;
 import org.apache.fineract.client.models.LoanAccountLockResponseDTO;
-import retrofit2.Response;
 
 public final class ErrorMessageHelper {
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    public static final String DATA_INTEGRITY_ISSUE_ENTITY_LINKED_CODE = "error.msg.data.integrity.issue.entity.linked";
 
     private ErrorMessageHelper() {}
-
-    public static String requestFailed(Response response) throws IOException {
-        return String.format("Request failed. Error:%n%s", response.errorBody() != null ? response.errorBody().string() : null);
-    }
-
-    public static String requestFailedWithCode(Response response) {
-        return String.format("Response has error code: %2d", response.code());
-    }
 
     public static String batchRequestFailedWithCode(BatchResponse response) {
         return String.format("Response has error code: %2d in request: %2d", response.getStatusCode(), response.getRequestId());
     }
 
-    public static String chargeAppliesToIsInvalid(Enum chargeAppliesTo) {
+    public static String chargeAppliesToIsInvalid(final Enum<?> chargeAppliesTo) {
         return String.format("%s is invalid input for charge applies to field", chargeAppliesTo);
     }
 
@@ -874,6 +865,13 @@ public final class ErrorMessageHelper {
                 expectedToStr);
     }
 
+    public static String wrongRepaymentStartDateType(final Integer actual, final Integer expected) {
+        final String actualToStr = actual.toString();
+        final String expectedToStr = expected.toString();
+        return String.format("Wrong value in LoanDetails/repaymentStartDateType. %nActual value is: %s %nExpected Value is: %s",
+                actualToStr, expectedToStr);
+    }
+
     public static String downpaymentDisabledOnProductErrorCodeMsg() {
         return "The Loan can not override the downpayment properties because in the Loan Product the downpayment is disabled";
     }
@@ -1075,6 +1073,14 @@ public final class ErrorMessageHelper {
         return String.format("Data integrity issue with resource: %d", id);
     }
 
+    public static String workingCapitalDelinquencyBucketLinkedToLoanProductFailure(final Long id) {
+        return String.format("Data integrity issue with resource: %d", id);
+    }
+
+    public static String workingCapitalBreachLinkedToLoanProductFailure(final Long id) {
+        return String.format("Data integrity issue with resource: %d", id);
+    }
+
     public static String disburseNotApprovedFailure(String status) {
         return String.format("Disbursement is not allowed from current status %s", status);
     }
@@ -1089,6 +1095,10 @@ public final class ErrorMessageHelper {
 
     public static String discountAmountExceedFailure() {
         return "Failed data validation due to: amount.cannot.exceed.created.discount.";
+    }
+
+    public static String discountAmountExceedApprovedFailure() {
+        return "Failed data validation due to: amount.cannot.exceed.approved.discount.";
     }
 
     public static String discountAlreadySetBeforeDisburseFailure() {
@@ -1107,6 +1117,10 @@ public final class ErrorMessageHelper {
         return "Failed data validation due to: amount.cannot.exceed.created.discount.";
     }
 
+    public static String discountExceedProductDiscountFailure() {
+        return "Failed data validation due to: amount.cannot.exceed.product.discount.";
+    }
+
     public static String nearBreachCannotEnableWithoutBreachFailure() {
         return "Failed data validation due to: cannot.enable.near.breach.without.breach.";
     }
@@ -1117,5 +1131,9 @@ public final class ErrorMessageHelper {
 
     public static String nearBreachIdNotFoundFailure(long nearBreachId) {
         return String.format("Working Capital Near Breach with id %s was not found.", nearBreachId);
+    }
+
+    public static String periodPaymentRateOnNonActiveLoanFailure() {
+        return "rate.change.not.allowed.for.non.active.loan";
     }
 }

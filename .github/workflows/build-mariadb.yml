@@ -51,7 +51,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Download workspace
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: fineract-workspace-${{ github.run_id }}
           path: .
@@ -138,7 +138,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: test-results-${{ matrix.task }}
+          name: test-results-mariadb-${{ matrix.task }}-attempt-${{ github.run_attempt }}
           path: '**/build/reports/'
           retention-days: 5
 
@@ -146,6 +146,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: server-logs-${{ matrix.task }}
+          name: server-logs-mariadb-${{ matrix.task }}-attempt-${{ github.run_attempt }}
           path: '**/build/cargo/'
           retention-days: 5

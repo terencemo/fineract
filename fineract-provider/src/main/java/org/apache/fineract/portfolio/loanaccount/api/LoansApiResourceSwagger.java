@@ -1261,6 +1261,8 @@ final class LoansApiResourceSwagger {
         public BigDecimal disbursedAmountPercentageForDownPayment;
         @Schema(example = "false")
         public Boolean enableAutoRepaymentForDownPayment;
+        @Schema(description = "Seed date for first repayment period: disbursement date vs submitted on date", example = "1")
+        public EnumOptionData repaymentStartDateType;
         @Schema(example = "CUMULATIVE")
         public EnumOptionData loanScheduleType;
         @Schema(example = "HORIZONTAL")
@@ -1427,6 +1429,8 @@ final class LoansApiResourceSwagger {
         public List<PostLoansDataTable> datatables;
 
         public List<PostLoansRequestChargeData> charges;
+        @Schema(example = "1")
+        public Long linkAccountId;
 
         @Schema(description = """
                 Optional array of originators to associate with this loan. \
@@ -1434,6 +1438,9 @@ final class LoansApiResourceSwagger {
                 If the global config 'enable_originator_creation_during_loan_application' is enabled, \
                 non-existing originators will be auto-created using the provided details (name, typeId, channelTypeId).""")
         public List<PostLoansOriginatorData> originators;
+
+        @Schema(example = "1")
+        public Integer repaymentStartDateType;
 
         static final class PostLoansRequestChargeData {
 

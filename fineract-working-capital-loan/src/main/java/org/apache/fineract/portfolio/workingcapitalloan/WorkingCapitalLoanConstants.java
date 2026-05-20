@@ -47,6 +47,7 @@ public final class WorkingCapitalLoanConstants {
     public static final String APPROVE_LOAN_COMMAND = "approve";
     public static final String DISBURSE_LOAN_COMMAND = "disburse";
     public static final String REPAYMENT_LOAN_COMMAND = "repayment";
+    public static final String GOODWILL_CREDIT_LOAN_COMMAND = "goodwillCredit";
     public static final String CREDIT_BALANCE_REFUND_COMMAND = "creditBalanceRefund";
 
     // Approval / Rejection / Undo-approval parameters
@@ -74,7 +75,15 @@ public final class WorkingCapitalLoanConstants {
     public static final String receiptNumberParamName = "receiptNumber";
     public static final String bankNumberParamName = "bankNumber";
     public static final String transactionDateParamName = "transactionDate";
+    public static final String transactionTypeParamName = "transactionType";
+
+    // Transaction parameters
+    public static final String relatedResourceIdParamName = "relatedResourceId";
 
     public static final String WRITE_OFF_REASONS = "WriteOffReasons";
     public static final String CHARGE_OFF_REASONS = "ChargeOffReasons";
+
+    // Period payment rate change parameters
+    public static final String periodPaymentRateParamName = "periodPaymentRate";
+    public static final String previousPeriodPaymentRateParamName = "previousRate";
 }
