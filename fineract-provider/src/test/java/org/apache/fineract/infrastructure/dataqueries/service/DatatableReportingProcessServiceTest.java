@@ -34,7 +34,6 @@ import org.apache.fineract.infrastructure.report.service.ReportParameterTypeReso
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 class DatatableReportingProcessServiceTest {
