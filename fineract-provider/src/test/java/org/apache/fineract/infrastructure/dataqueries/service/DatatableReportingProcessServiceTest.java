@@ -39,8 +39,7 @@ import org.mockito.Mockito;
 
 class DatatableReportingProcessServiceTest {
 
-    @Mock
-    private ReportParameterTypeResolver reportParameterTypeResolver;
+    private final ReportParameterTypeResolver reportParameterTypeResolver = Mockito.mock(ReportParameterTypeResolver.class);
 
     @Test
     void exportToS3ThrowsGeneralPlatformDomainRuleException() {
