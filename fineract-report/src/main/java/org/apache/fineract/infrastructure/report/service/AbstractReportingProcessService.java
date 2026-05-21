@@ -59,8 +59,8 @@ public abstract class AbstractReportingProcessService implements ReportingProces
                     if (formatType == null) {
                         log.warn("Report '{}' received unknown parameter '{}' with no registered type — rejected", reportName,
                                 paramVariable);
-                        throw new SqlValidationException(
-                                String.format("unknown report parameter '%s' is not registered for report '%s'", paramVariable, reportName));
+                        throw new SqlValidationException(String.format("unknown report parameter '%s' is not registered for report '%s'",
+                                paramVariable, reportName));
                     }
 
                     validateParamByType(paramVariable, pValue, formatType);
