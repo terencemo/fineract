@@ -207,10 +207,8 @@ public class ReadReportingServiceImpl implements ReadReportingService {
             if (entry.getKey().startsWith("${")) {
                 String paramName = entry.getKey().substring(2, entry.getKey().length() - 1);
                 // Replace display-literal pattern: '${param}' followed by AS
-                sql = sql.replaceAll(
-                    "'" + Pattern.quote("${" + paramName + "}") + "'(\\s+AS\\s+)",
-                    "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1"
-                );
+                sql = sql.replaceAll("'" + Pattern.quote("${" + paramName + "}") + "'(\\s+AS\\s+)",
+                        "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1");
             }
         }
 
