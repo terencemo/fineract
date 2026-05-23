@@ -18,10 +18,10 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
