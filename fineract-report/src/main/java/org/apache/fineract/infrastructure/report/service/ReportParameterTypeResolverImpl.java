@@ -20,6 +20,8 @@ package org.apache.fineract.infrastructure.report.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
@@ -29,20 +31,44 @@ public class ReportParameterTypeResolverImpl implements ReportParameterTypeResol
 
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String PARAM_TYPE_SQL = """
-            SELECT sp.parameter_variable, sp.parameter_FormatType AS format_type
+    private static final String PARAM_TYPE_SQL_PREFIX = "SELECT sp.parameter_variable, sp.";
+    private static final String PARAM_TYPE_SQL_SUFFIX = """
+             AS format_type
             FROM stretchy_report_parameter srp
             JOIN stretchy_parameter sp ON sp.id = srp.parameter_id
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
             """;
 
+    private volatile String quotedParameterFormatType;
+
     public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private String getQuotedColumnName(String columnName) {
+        try {
+            DatabaseMetaData metaData = jdbcTemplate.getDataSource()
+                    .getConnection()
+                    .getMetaData();
+            String databaseProductName = metaData.getDatabaseProductName().toLowerCase();
+
+            if (databaseProductName.contains("postgresql")) {
+                // PostgreSQL: use double quotes for case-sensitive mixed-case identifiers
+                return "\"" + columnName + "\"";
+            } else {
+                // Fallback: use quotes as safest option
+                return columnName;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to detect database product name", e);
+        }
     }
 
     @Override
     public Map<String, String> loadParamFormatTypes(String reportName) {
         final Map<String, String> formatTypes = new HashMap<>();
+        final String quotedColumnName = getQuotedColumnName("parameter_FormatType");
+        final String PARAM_TYPE_SQL = PARAM_TYPE_SQL_PREFIX + quotedColumnName + PARAM_TYPE_SQL_SUFFIX;
         final SqlRowSet rs = jdbcTemplate.queryForRowSet(PARAM_TYPE_SQL, reportName);
         while (rs.next()) {
             formatTypes.put(rs.getString("parameter_variable"), rs.getString("format_type"));
