@@ -39,17 +39,13 @@ public class ReportParameterTypeResolverImpl implements ReportParameterTypeResol
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
             """;
 
-    private volatile String quotedParameterFormatType;
-
     public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     private String getQuotedColumnName(String columnName) {
         try {
-            DatabaseMetaData metaData = jdbcTemplate.getDataSource()
-                    .getConnection()
-                    .getMetaData();
+            DatabaseMetaData metaData = jdbcTemplate.getDataSource().getConnection().getMetaData();
             String databaseProductName = metaData.getDatabaseProductName().toLowerCase();
 
             if (databaseProductName.contains("postgresql")) {

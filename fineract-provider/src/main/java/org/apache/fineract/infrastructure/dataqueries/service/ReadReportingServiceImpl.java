@@ -201,9 +201,20 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         sql = Pattern.compile(Pattern.quote("CURRENT_DATE"), Pattern.CASE_INSENSITIVE).matcher(sql)
                 .replaceAll(Matcher.quoteReplacement(sqlGenerator.currentBusinessDate()));
 
-        // Step 2.5 — strip quotes surrounding placeholders so JDBC bind works correctly.
-        // Converts '${param}' and "${param}" to ${param}
-        // JDBC prepared statements handle type-safe quoting automatically.
+        // Step 2.5a — resolve display-literal placeholders: '${param}' AS alias
+        // These are not filter values so direct substitution is safe.
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            if (entry.getKey().startsWith("${")) {
+                String paramName = entry.getKey().substring(2, entry.getKey().length() - 1);
+                // Replace display-literal pattern: '${param}' followed by AS
+                sql = sql.replaceAll(
+                    "'" + Pattern.quote("${" + paramName + "}") + "'(\\s+AS\\s+)",
+                    "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1"
+                );
+            }
+        }
+
+        // Step 2.5b — strip remaining quotes around filter placeholders
         sql = sql.replaceAll("'(\\$\\{\\w+})'", "$1");
         sql = sql.replaceAll("\"(\\$\\{\\w+})\"", "$1");
         sql = sql.replaceAll("\"(-?\\d+)\"", "$1");
