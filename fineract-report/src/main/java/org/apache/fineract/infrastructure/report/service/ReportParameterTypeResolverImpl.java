@@ -27,7 +27,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportParameterTypeResolverImpl implements ReportParameterTypeResolver {
+public final class ReportParameterTypeResolverImpl implements ReportParameterTypeResolver {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -39,24 +39,26 @@ public class ReportParameterTypeResolverImpl implements ReportParameterTypeResol
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
             """;
 
+    private final String databaseProductName;
+
     public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.databaseProductName = detectDatabaseProduct();
+    }
+
+    private String detectDatabaseProduct() {
+        try (var connection = jdbcTemplate.getDataSource().getConnection()) {
+            return connection.getMetaData().getDatabaseProductName().toLowerCase();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to detect database product name", e);
+        }
     }
 
     private String getQuotedColumnName(String columnName) {
-        try {
-            DatabaseMetaData metaData = jdbcTemplate.getDataSource().getConnection().getMetaData();
-            String databaseProductName = metaData.getDatabaseProductName().toLowerCase();
-
-            if (databaseProductName.contains("postgresql")) {
-                // PostgreSQL: use double quotes for case-sensitive mixed-case identifiers
-                return "\"" + columnName + "\"";
-            } else {
-                // Fallback: use quotes as safest option
-                return columnName;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to detect database product name", e);
+        if (databaseProductName.contains("postgresql")) {
+            return "\"" + columnName + "\"";
+        } else {
+            return columnName;
         }
     }
 
