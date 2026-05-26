@@ -18,7 +18,6 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
