@@ -32,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -163,6 +164,28 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         return value;
     }
 
+    private PreparedQuery buildPreparedQuery(final String name, final Map<String, String> queryParams, final String sql) {
+        final Map<String, String> paramFormatTypes = this.reportParameterTypeResolver.loadParamFormatTypes(name);
+        final List<Object> paramValues = new ArrayList<>();
+        final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
+        final StringBuilder preparedSql = new StringBuilder();
+
+        while (matcher.find()) {
+            final String paramName = matcher.group(1);
+            if (SERVER_PARAMS.contains(paramName)) {
+                matcher.appendReplacement(preparedSql, Matcher.quoteReplacement(matcher.group(0)));
+            } else if (queryParams.containsKey(paramName)) {
+                matcher.appendReplacement(preparedSql, "?");
+                paramValues.add(castParamValue(queryParams.get(paramName), paramFormatTypes.get(paramName)));
+            } else {
+                matcher.appendReplacement(preparedSql, Matcher.quoteReplacement(matcher.group(0)));
+                log.warn("Report '{}' contains placeholder '{}' with no matching parameter", name, paramName);
+            }
+        }
+        matcher.appendTail(preparedSql);
+        return new PreparedQuery(this.genericDataService.wrapSQL(preparedSql.toString()), paramValues);
+    }
+
     /**
      * Builds a {@link PreparedQuery} from the stored report SQL template.
      *
@@ -216,43 +239,17 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         sql = sql.replaceAll("\"(\\$\\{\\w+})\"", "$1");
         sql = sql.replaceAll("\"(-?\\d+)\"", "$1");
 
-        // Step 3 — single left-to-right regex pass: convert remaining ${param} tokens to ? bind variables.
-        // Values are appended to paramValues in the same left-to-right order so JDBC positional binding is correct.
-        // Repeated occurrences of the same parameter are each replaced and each value appended separately.
-        final List<Object> paramValues = new ArrayList<>();
-        final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
-        final StringBuilder preparedSql = new StringBuilder();
-
-        while (matcher.find()) {
-            final String paramName = matcher.group(1);
-            if (SERVER_PARAMS.contains(paramName)) {
-                // should already be resolved in step 1; leave as-is if somehow still present
-                matcher.appendReplacement(preparedSql, Matcher.quoteReplacement(matcher.group(0)));
-            } else {
-                // queryParams keys are stored as "${paramName}" by getReportParams — match accordingly
-                final String mapKey = "${" + paramName + "}";
-                if (queryParams.containsKey(mapKey)) {
-                    matcher.appendReplacement(preparedSql, "?");
-                    String value = queryParams.get(mapKey);
-                    String formatType = paramFormatTypes.get(paramName);
-                    paramValues.add(castParamValue(value, formatType));
-                } else {
-                    // unknown placeholder — leave as-is so the query fails explicitly rather than silently
-                    matcher.appendReplacement(preparedSql, Matcher.quoteReplacement(matcher.group(0)));
-                    log.warn("Report '{}' contains placeholder '{}' with no matching query parameter", name, paramName);
-                }
+        // Step 3 — normalise queryParams keys from "${paramName}" to "paramName" for buildPreparedQuery
+        final Map<String, String> normalisedParams = new HashMap<>();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith("${") && key.endsWith("}")) {
+                key = key.substring(2, key.length() - 1);
             }
-        }
-        matcher.appendTail(preparedSql);
-
-        final String wrappedSql = this.genericDataService.wrapSQL(preparedSql.toString());
-
-        if (log.isDebugEnabled()) {
-            log.debug("Report '{}' prepared SQL:  {}", name, wrappedSql);
-            log.debug("Report '{}' bind params ({} total): {}", name, paramValues.size(), paramValues);
+            normalisedParams.put(key, entry.getValue());
         }
 
-        return new PreparedQuery(wrappedSql, paramValues);
+        return buildPreparedQuery(name, normalisedParams, sql);
     }
 
     private String getSql(final String name, final String type) {
@@ -599,23 +596,11 @@ public class ReadReportingServiceImpl implements ReadReportingService {
     private PreparedQuery sqlToRunForSmsEmailCampaign(final String name, final String type, final Map<String, String> queryParams) {
         String sql = getSql(name, type);
 
-        final List<Object> paramValues = new ArrayList<>();
-        final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
-        final StringBuilder preparedSql = new StringBuilder();
+        sql = sql.replaceAll("'(\\$\\{[^}]+\\})'", "$1");
+        sql = sql.replaceAll("\"(\\$\\{[^}]+\\})\"", "$1");
+        sql = sql.replaceAll("\"(-?\\d+)\"", "$1");
 
-        while (matcher.find()) {
-            final String paramName = matcher.group(1);
-            if (queryParams.containsKey(paramName)) {
-                matcher.appendReplacement(preparedSql, "?");
-                paramValues.add(queryParams.get(paramName));
-            } else {
-                matcher.appendReplacement(preparedSql, Matcher.quoteReplacement(matcher.group(0)));
-                log.warn("SMS/email campaign report '{}' contains placeholder '{}' with no matching parameter", name, paramName);
-            }
-        }
-        matcher.appendTail(preparedSql);
-
-        return new PreparedQuery(this.genericDataService.wrapSQL(preparedSql.toString()), paramValues);
+        return buildPreparedQuery(name, queryParams, sql);
     }
 
     @Override
