@@ -67,8 +67,7 @@ public class DefaultInputValidator implements InputValidator {
         var resolvedProfile = profiles.get(profile);
         if (resolvedProfile == null) {
             log.warn("Input validation profile '{}' not found — rejecting input as unsafe", profile);
-            throw new InputValidationException(
-                    String.format("no input validation profile registered for '%s'", profile));
+            throw new InputValidationException(String.format("no input validation profile registered for '%s'", profile));
         }
 
         // whitelist: input must match at least one pattern in the profile
@@ -79,7 +78,6 @@ public class DefaultInputValidator implements InputValidator {
         }
 
         log.warn("Input validation error for profile '{}': >> {} <<", profile, input);
-        throw new InputValidationException(
-                String.format("invalid input for profile '%s': does not match any permitted pattern", profile));
+        throw new InputValidationException(String.format("invalid input for profile '%s': does not match any permitted pattern", profile));
     }
 }
