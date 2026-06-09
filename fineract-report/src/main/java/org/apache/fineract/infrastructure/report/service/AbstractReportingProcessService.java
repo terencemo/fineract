@@ -35,8 +35,7 @@ public abstract class AbstractReportingProcessService implements ReportingProces
     private final InputValidator inputValidator;
     private final ReportParameterTypeResolver reportParameterTypeResolver;
 
-    protected AbstractReportingProcessService(InputValidator inputValidator,
-            ReportParameterTypeResolver reportParameterTypeResolver) {
+    protected AbstractReportingProcessService(InputValidator inputValidator, ReportParameterTypeResolver reportParameterTypeResolver) {
         this.inputValidator = inputValidator;
         this.reportParameterTypeResolver = reportParameterTypeResolver;
     }
