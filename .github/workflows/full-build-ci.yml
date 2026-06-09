@@ -3,6 +3,7 @@ name: Fineract CI
 on:
   push:
     branches:
+      - 'runrepo**'
       - develop
       - 'release/**'
       - '1.*'
