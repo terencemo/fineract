@@ -43,14 +43,13 @@ public class DefaultInputValidator implements InputValidator {
 
     @PostConstruct
     public void init() {
-        log.warn("Called DefaultInputValidator.init");
         properties.getInputValidation().getPatterns().forEach(pattern -> {
-            log.warn("Setup input validation pattern: {}", pattern.getName());
+            log.info("Setup input validation pattern: {}", pattern.getName());
             patterns.put(pattern.getName(), Pattern.compile(pattern.getPattern(), Pattern.DOTALL));
         });
 
         properties.getInputValidation().getProfiles().forEach(profile -> {
-            log.warn("Setup input validation profile: {}", profile.getName());
+            log.info("Setup input validation profile: {}", profile.getName());
             profile.getPatternRefs()
                     .sort(Comparator.comparing(FineractProperties.FineractInputValidationPatternReferenceProperties::getOrder));
             profiles.put(profile.getName(), profile);
@@ -59,7 +58,6 @@ public class DefaultInputValidator implements InputValidator {
 
     @Override
     public void validate(final String profile, final String input) throws InputValidationException {
-        log.warn("InputValidator keys: " + String.join(", ", profiles.keySet()));
         if (StringUtils.isBlank(input)) {
             return;
         }
