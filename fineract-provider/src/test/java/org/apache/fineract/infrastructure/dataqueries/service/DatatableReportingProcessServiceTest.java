@@ -31,7 +31,7 @@ import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRu
 import org.apache.fineract.infrastructure.dataqueries.service.export.DatatableReportExportService;
 import org.apache.fineract.infrastructure.dataqueries.service.export.ResponseHolder;
 import org.apache.fineract.infrastructure.report.service.ReportParameterTypeResolver;
-import org.apache.fineract.infrastructure.security.service.SqlValidator;
+import org.apache.fineract.infrastructure.security.service.InputValidator;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,10 +45,10 @@ class DatatableReportingProcessServiceTest {
 
         DatatableReportExportService jsonExportService = Mockito.mock(DatatableReportExportService.class);
         Mockito.doReturn(true).when(jsonExportService).supports(DatatableExportTargetParameter.JSON);
-        SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
+        InputValidator inputValidator = Mockito.mock(InputValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator, reportParameterTypeResolver);
+                inputValidator, reportParameterTypeResolver);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));
@@ -72,10 +72,10 @@ class DatatableReportingProcessServiceTest {
 
         // ContentType.APPLICATION_JSON.toString(), "export.json"
         Mockito.doReturn(responseHolder).when(jsonExportService).export(any(), any(), any(), any());
-        SqlValidator sqlValidator = Mockito.mock(SqlValidator.class);
+        InputValidator inputValidator = Mockito.mock(InputValidator.class);
 
         DatatableReportingProcessService datatableReportingProcessService = new DatatableReportingProcessService(List.of(jsonExportService),
-                sqlValidator, reportParameterTypeResolver);
+                inputValidator, reportParameterTypeResolver);
 
         MultivaluedMap<String, String> queryParams = new MultivaluedStringMap();
         queryParams.put("R_officeId", List.of("2"));
