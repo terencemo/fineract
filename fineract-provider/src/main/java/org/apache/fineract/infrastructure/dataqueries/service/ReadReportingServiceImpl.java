@@ -205,8 +205,6 @@ public class ReadReportingServiceImpl implements ReadReportingService {
      */
     private PreparedQuery getSQLtoRun(final String name, final String type, final Map<String, String> queryParams) {
 
-        final Map<String, String> paramFormatTypes = this.reportParameterTypeResolver.loadParamFormatTypes(name);
-
         String sql = getSql(name, type);
 
         // Step 1 — resolve server-controlled placeholders as plain strings (not user input)
