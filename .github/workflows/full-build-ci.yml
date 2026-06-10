@@ -2,10 +2,6 @@ name: Fineract CI
 
 on:
   push:
-    branches:
-      - develop
-      - 'release/**'
-      - '1.*'
     paths-ignore:
       - '**/*.md'
   pull_request:
