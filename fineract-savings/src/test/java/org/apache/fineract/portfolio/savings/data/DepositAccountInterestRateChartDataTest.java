@@ -16,21 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.cob.domain;
+package org.apache.fineract.portfolio.savings.data;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public interface LockingService {
+import org.junit.jupiter.api.Test;
 
-    void upgradeLock(List<Long> accountsToLock, LockOwner lockOwner);
+class DepositAccountInterestRateChartDataTest {
 
-    void deleteByLoanIdInAndLockOwner(List<Long> loanIds, LockOwner lockOwner);
-
-    List<Long> findLockIdsByLoanIdIn(List<Long> loanIds);
-
-    List<Long> findLockIdsByLoanIdInAndLockOwner(List<Long> loanIds, LockOwner lockOwner);
-
-    void applyLock(List<Long> loanIds, LockOwner lockOwner);
-
-    void updateLockError(Long loanId, LockOwner lockOwner, String error, String stacktrace);
+    @Test
+    void fromShouldReturnNullWhenProductChartDataIsNull() {
+        assertNull(DepositAccountInterestRateChartData.from(null));
+    }
 }
