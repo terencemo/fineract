@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - 'release/**'
+      - 'runrepo**'
       - '1.*'
     paths-ignore:
       - '**/*.md'
