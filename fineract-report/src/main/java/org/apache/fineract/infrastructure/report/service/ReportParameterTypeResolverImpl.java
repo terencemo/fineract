@@ -18,9 +18,9 @@
  */
 package org.apache.fineract.infrastructure.report.service;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 public final class ReportParameterTypeResolverImpl implements ReportParameterTypeResolver {
 
     private final JdbcTemplate jdbcTemplate;
+    private final boolean isPostgres;
 
     private static final String PARAM_TYPE_SQL_PREFIX = "SELECT sp.parameter_variable, sp.";
     private static final String PARAM_TYPE_SQL_SUFFIX = """
@@ -38,41 +39,21 @@ public final class ReportParameterTypeResolverImpl implements ReportParameterTyp
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
             """;
 
-    private volatile String databaseProductName;
-
-    public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate) {
+    public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate, @Value("${spring.datasource.hikari.jdbcUrl:}") String jdbcUrl) {
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    private String getDatabaseProductName() {
-        if (databaseProductName == null) {
-            synchronized (this) {
-                if (databaseProductName == null) {
-                    try (var connection = jdbcTemplate.getDataSource().getConnection()) {
-                        databaseProductName = connection.getMetaData().getDatabaseProductName().toLowerCase();
-                    } catch (SQLException e) {
-                        throw new RuntimeException("Failed to detect database product name", e);
-                    }
-                }
-            }
-        }
-        return databaseProductName;
+        this.isPostgres = jdbcUrl.toLowerCase().startsWith("jdbc:postgresql");
     }
 
     private String getQuotedColumnName(String columnName) {
-        if (getDatabaseProductName().contains("postgresql")) {
-            return "\"" + columnName + "\"";
-        } else {
-            return columnName;
-        }
+        return isPostgres ? "\"" + columnName + "\"" : columnName;
     }
 
     @Override
     public Map<String, String> loadParamFormatTypes(String reportName) {
         final Map<String, String> formatTypes = new HashMap<>();
         final String quotedColumnName = getQuotedColumnName("parameter_FormatType");
-        final String PARAM_TYPE_SQL = PARAM_TYPE_SQL_PREFIX + quotedColumnName + PARAM_TYPE_SQL_SUFFIX;
-        final SqlRowSet rs = jdbcTemplate.queryForRowSet(PARAM_TYPE_SQL, reportName);
+        final String sql = PARAM_TYPE_SQL_PREFIX + quotedColumnName + PARAM_TYPE_SQL_SUFFIX;
+        final SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, reportName);
         while (rs.next()) {
             formatTypes.put(rs.getString("parameter_variable"), rs.getString("format_type"));
         }
