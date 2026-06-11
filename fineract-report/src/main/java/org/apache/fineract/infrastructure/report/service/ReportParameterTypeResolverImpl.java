@@ -20,7 +20,7 @@ package org.apache.fineract.infrastructure.report.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.fineract.infrastructure.core.service.database.DatabaseTypeResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 public final class ReportParameterTypeResolverImpl implements ReportParameterTypeResolver {
 
     private final JdbcTemplate jdbcTemplate;
-    private final boolean isPostgres;
+    private final DatabaseTypeResolver databaseTypeResolver;
 
     private static final String PARAM_TYPE_SQL_PREFIX = "SELECT sp.parameter_variable, sp.";
     private static final String PARAM_TYPE_SQL_SUFFIX = """
@@ -39,13 +39,13 @@ public final class ReportParameterTypeResolverImpl implements ReportParameterTyp
             WHERE srp.report_id = (SELECT id FROM stretchy_report WHERE report_name = ?)
             """;
 
-    public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate, @Value("${spring.datasource.hikari.jdbcUrl:}") String jdbcUrl) {
+    public ReportParameterTypeResolverImpl(JdbcTemplate jdbcTemplate, DatabaseTypeResolver databaseTypeResolver) {
         this.jdbcTemplate = jdbcTemplate;
-        this.isPostgres = jdbcUrl.toLowerCase().startsWith("jdbc:postgresql");
+        this.databaseTypeResolver = databaseTypeResolver;
     }
 
     private String getQuotedColumnName(String columnName) {
-        return isPostgres ? "\"" + columnName + "\"" : columnName;
+        return databaseTypeResolver.isPostgreSQL() ? "\"" + columnName + "\"" : columnName;
     }
 
     @Override
