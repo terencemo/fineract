@@ -58,6 +58,7 @@ import org.apache.fineract.infrastructure.dataqueries.data.ResultsetRowData;
 import org.apache.fineract.infrastructure.dataqueries.domain.ReportType;
 import org.apache.fineract.infrastructure.dataqueries.exception.ReportNotFoundException;
 import org.apache.fineract.infrastructure.report.service.ReportParameterTypeResolver;
+import org.apache.fineract.infrastructure.security.exception.InputValidationException;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.security.service.SqlInjectionPreventerService;
 import org.apache.fineract.infrastructure.security.utils.LogParameterEscapeUtil;
@@ -164,8 +165,8 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         return value;
     }
 
-    private PreparedQuery buildPreparedQuery(final String name, final Map<String, String> queryParams, final String sql) {
-        final Map<String, String> paramFormatTypes = this.reportParameterTypeResolver.loadParamFormatTypes(name);
+    private PreparedQuery buildPreparedQuery(final String name, final Map<String, String> queryParams, final String sql,
+            final Map<String, String> paramFormatTypes) {
         final List<Object> paramValues = new ArrayList<>();
         final Matcher matcher = PLACEHOLDER_PATTERN.matcher(sql);
         final StringBuilder preparedSql = new StringBuilder();
@@ -205,6 +206,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
      */
     private PreparedQuery getSQLtoRun(final String name, final String type, final Map<String, String> queryParams) {
 
+        final Map<String, String> paramFormatTypes = this.reportParameterTypeResolver.loadParamFormatTypes(name);
         String sql = getSql(name, type);
 
         // Step 1 — resolve server-controlled placeholders as plain strings (not user input)
@@ -224,23 +226,17 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         // Step 2.5a — display-literal substitution for date/number params only
         // Substitute as plain string to preserve varchar return type expected by callers
         for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            String paramName = entry.getKey().startsWith("${") 
-                ? entry.getKey().substring(2, entry.getKey().length() - 1)
-                : entry.getKey();
+            String paramName = entry.getKey().startsWith("${") ? entry.getKey().substring(2, entry.getKey().length() - 1) : entry.getKey();
             String formatType = paramFormatTypes.get(paramName);
             String displayPattern = "'\\$\\{" + Pattern.quote(paramName) + "\\}'(\\s+AS\\s+)";
             if (sql.matches("(?s).*" + displayPattern + ".*")) {
-                if (formatType == null || 
-                    (!formatType.equalsIgnoreCase("number") && 
-                     !formatType.equalsIgnoreCase("integer") &&
-                     !formatType.equalsIgnoreCase("date"))) {
-                    throw new SqlValidationException(
-                        "Parameter '%s' of type '%s' cannot be used in display-literal position"
+                if (formatType == null || (!formatType.equalsIgnoreCase("number") && !formatType.equalsIgnoreCase("integer")
+                        && !formatType.equalsIgnoreCase("date"))) {
+                    throw new InputValidationException("Parameter '%s' of type '%s' cannot be used in display-literal position"
                             .formatted(paramName, formatType != null ? formatType : "unregistered"));
                 }
                 // Substitute as string literal — preserves varchar return type
-                sql = sql.replaceAll(displayPattern,
-                        "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1");
+                sql = sql.replaceAll(displayPattern, "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1");
             }
         }
 
@@ -259,7 +255,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
             normalisedParams.put(key, entry.getValue());
         }
 
-        return buildPreparedQuery(name, normalisedParams, sql);
+        return buildPreparedQuery(name, normalisedParams, sql, paramFormatTypes);
     }
 
     private String getSql(final String name, final String type) {
