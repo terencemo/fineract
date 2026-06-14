@@ -600,13 +600,14 @@ public class ReadReportingServiceImpl implements ReadReportingService {
      * are bound as {@code ?} variables — never concatenated into the SQL string.
      */
     private PreparedQuery sqlToRunForSmsEmailCampaign(final String name, final String type, final Map<String, String> queryParams) {
+        final Map<String, String> paramFormatTypes = this.reportParameterTypeResolver.loadParamFormatTypes(name);
         String sql = getSql(name, type);
 
         sql = sql.replaceAll("'(\\$\\{[^}]+\\})'", "$1");
         sql = sql.replaceAll("\"(\\$\\{[^}]+\\})\"", "$1");
         sql = sql.replaceAll("\"(-?\\d+)\"", "$1");
 
-        return buildPreparedQuery(name, queryParams, sql);
+        return buildPreparedQuery(name, queryParams, sql, paramFormatTypes);
     }
 
     @Override
