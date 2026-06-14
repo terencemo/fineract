@@ -221,7 +221,30 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         sql = Pattern.compile(Pattern.quote("CURRENT_DATE"), Pattern.CASE_INSENSITIVE).matcher(sql)
                 .replaceAll(Matcher.quoteReplacement(sqlGenerator.currentBusinessDate()));
 
-        // Step 2.5 — strip remaining quotes around filter placeholders
+        // Step 2.5a — display-literal substitution for date/number params only
+        // Substitute as plain string to preserve varchar return type expected by callers
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            String paramName = entry.getKey().startsWith("${") 
+                ? entry.getKey().substring(2, entry.getKey().length() - 1)
+                : entry.getKey();
+            String formatType = paramFormatTypes.get(paramName);
+            String displayPattern = "'\\$\\{" + Pattern.quote(paramName) + "\\}'(\\s+AS\\s+)";
+            if (sql.matches("(?s).*" + displayPattern + ".*")) {
+                if (formatType == null || 
+                    (!formatType.equalsIgnoreCase("number") && 
+                     !formatType.equalsIgnoreCase("integer") &&
+                     !formatType.equalsIgnoreCase("date"))) {
+                    throw new SqlValidationException(
+                        "Parameter '%s' of type '%s' cannot be used in display-literal position"
+                            .formatted(paramName, formatType != null ? formatType : "unregistered"));
+                }
+                // Substitute as string literal — preserves varchar return type
+                sql = sql.replaceAll(displayPattern,
+                        "'" + Matcher.quoteReplacement(entry.getValue()) + "'$1");
+            }
+        }
+
+        // Step 2.5b — strip remaining quotes around filter placeholders
         sql = sql.replaceAll("'(\\$\\{\\w+})'", "$1");
         sql = sql.replaceAll("\"(\\$\\{\\w+})\"", "$1");
         sql = sql.replaceAll("\"(-?\\d+)\"", "$1");
