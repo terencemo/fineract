@@ -429,6 +429,10 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
 
         amortizationScheduleWriteService.applyDiscountFeeAdjustment(loan);
 
+        if (loan.getLoanProduct().getAccountingRule().isCashBased()) {
+            accountingProcessor.postJournalEntriesForDiscountFee(loan, discountTransaction);
+        }
+
         businessEventNotifierService
                 .notifyPostBusinessEvent(new WorkingCapitalLoanDiscountFeeTransactionBusinessEvent(discountTransaction));
         return discountTransaction;
@@ -554,6 +558,10 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         transactionRepository.saveAndFlush(adjustmentTransaction);
         saveNewTransactionRelation(adjustmentTransaction, relatedDiscountTransaction, LoanTransactionRelationTypeEnum.RELATED);
         allocationRepository.saveAndFlush(WorkingCapitalLoanTransactionAllocation.forDiscountFeeAdjustment(adjustmentTransaction, amount));
+
+        if (loan.getLoanProduct().getAccountingRule().isCashBased()) {
+            accountingProcessor.postJournalEntriesForDiscountFeeAdjustment(loan, adjustmentTransaction);
+        }
 
         if (loan.getLoanProductRelatedDetails() == null) {
             throw new PlatformApiDataValidationException("validation.msg.wc.loan.discount.not.available",
@@ -822,6 +830,11 @@ public class WorkingCapitalLoanWritePlatformServiceImpl implements WorkingCapita
         handleNote(loan, command, changes);
 
         this.loanRepository.saveAndFlush(loan);
+
+        if (loan.getLoanProduct().getAccountingRule().isCashBased()) {
+            accountingProcessor.postJournalEntries(loan, creditBalanceRefundTransaction, allocation, false);
+        }
+
         businessEventNotifierService.notifyPostBusinessEvent(
                 new WorkingCapitalLoanCreditBalanceRefundTransactionBusinessEvent(creditBalanceRefundTransaction, loan.getId()));
 
