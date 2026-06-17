@@ -27,8 +27,8 @@ import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
-import org.apache.fineract.client.models.PostRepostRequest;
 import org.apache.fineract.client.models.PostReportsResponse;
+import org.apache.fineract.client.models.PostRepostRequest;
 import org.apache.fineract.client.models.RunReportsResponse;
 import org.apache.fineract.client.services.RunReportsApi;
 import org.apache.fineract.client.util.CallFailedRuntimeException;
@@ -66,20 +66,11 @@ public class ReportsTest extends IntegrationTest {
 
     @BeforeAll
     public void setupStringParamReport() throws IOException {
-        PostRepostRequest request = new PostRepostRequest()
-                .reportName(STRING_PARAM_TEST_REPORT)
-                .reportType("Table")
-                .reportSubType("")
-                .reportCategory("Test")
-                .description("Integration test fixture for string parameter AS-header sanitisation")
+        PostRepostRequest request = new PostRepostRequest().reportName(STRING_PARAM_TEST_REPORT).reportType("Table").reportSubType("")
+                .reportCategory("Test").description("Integration test fixture for string parameter AS-header sanitisation")
                 .reportSql("SELECT '${transactionId}' AS transaction_ref, o.name AS office_name FROM m_office o WHERE o.id = 1")
                 .reportParameters(List.of(
-                        Map.of(
-                                "id", "",
-                                "parameterId", TRANSACTION_ID_PARAM_ID.toString(),
-                                "reportParameterName", STRING_PARAM_VARIABLE
-                        )
-                ));
+                        Map.of("id", "", "parameterId", TRANSACTION_ID_PARAM_ID.toString(), "reportParameterName", STRING_PARAM_VARIABLE)));
         PostReportsResponse response = ok(fineractClient().reports.createReport(request));
         stringParamTestReportId = response.getResourceId();
     }
@@ -239,13 +230,9 @@ public class ReportsTest extends IntegrationTest {
      * substituted as a column alias, not a predicate value.
      */
     @ParameterizedTest(name = "SQL injection in string AS-header param rejected: {0}")
-    @ValueSource(strings = {
-            "'; DROP TABLE m_client; --",
-            "x UNION ALL SELECT password FROM m_appuser --",
-            "x FROM m_office WHERE SLEEP(5) --",
-            "x FROM m_office WHERE pg_sleep(5) --",
-            "real_col, (SELECT password FROM m_appuser LIMIT 1) AS"
-    })
+    @ValueSource(strings = { "'; DROP TABLE m_client; --", "x UNION ALL SELECT password FROM m_appuser --",
+            "x FROM m_office WHERE SLEEP(5) --", "x FROM m_office WHERE pg_sleep(5) --",
+            "real_col, (SELECT password FROM m_appuser LIMIT 1) AS" })
     void stringParamWithSqlInjectionInAsHeaderPositionIsRejected(String maliciousValue) throws IOException {
         Response<RunReportsResponse> response = fineractClient().createService(RunReportsApi.class)
                 .runReportGetData(STRING_PARAM_TEST_REPORT, Map.of("R_transactionId", maliciousValue)).execute();
